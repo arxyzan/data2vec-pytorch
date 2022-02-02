@@ -3,7 +3,6 @@ import torch.nn as nn
 from fairseq.models.fairseq_encoder import FairseqEncoder
 from fairseq.models.ema import EMA
 from fairseq.dataclass.configs import EMAConfig
-from fairseq.data.dictionary import Dictionary
 
 
 class Data2VecTextEncoder(nn.Module):
@@ -11,14 +10,12 @@ class Data2VecTextEncoder(nn.Module):
     Encoder module for Data2Vec model for text
     """
 
-    def __init__(self, cfg, encoder: FairseqEncoder, dictionary: Dictionary):
+    def __init__(self, cfg, encoder: FairseqEncoder, mask_idx):
         super(Data2VecTextEncoder, self).__init__()
         self.cfg = cfg
         self.encoder = encoder
-        self.dictionary = dictionary
         self.teacher = self._build_teacher()
-        self.mask_idx = dictionary.index("<mask>")
-        assert self.mask_idx != dictionary.unk(), dictionary.symbols
+        self.mask_idx = mask_idx
         self.average_top_k_layers = cfg.average_top_k_layers
         self.loss_scale = cfg.loss_scale
         self.regression_head = self._build_regression_head()
