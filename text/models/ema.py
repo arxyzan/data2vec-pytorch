@@ -3,6 +3,9 @@ import torch.nn as nn
 
 
 class EMA:
+    """
+    Modified version of class fairseq.models.ema.EMA.
+    """
     def __init__(self, model: nn.Module, cfg, device=None, skip_keys=None):
         self.model = model
         self.model.requires_grad_(False)
