@@ -4,6 +4,7 @@ Data2Vec is the first high-performance self-supervised algorithm that learns the
 Most machines learn exclusively from labeled data. However, through self-supervised learning, machines are able to learn about the world just by observing it 
 and then figuring out the structure of images, speech or text. This is a more scalable and efficient approach for machines to tackle new complex tasks,
 such as understanding text for more spoken languages. 
+
 ![](data2vec.png)
 
 In summary, the method is as follows: <br>
@@ -16,7 +17,7 @@ In summary, the method is as follows: <br>
 You can read the paper for more detail.
 
 ### Implementation
-Data2Vec is already implemented in fairseq in which for all modalities there is a seperate implementation (text, vision, audio). According to the paper:
+Data2Vec is already implemented in [fairseq](https://github.com/pytorch/fairseq/tree/main/examples/data2vec) in which for all modalities there is a seperate implementation (text, vision, audio). According to the paper:
 > <cite>Our primary is to design a single learning mechanism for different modalities. 
 Despite the unified learning regime, we still use modality-specific features extractors and masking strategies. 
 This makes sense given the vastly different nature of the input data.</cite>
