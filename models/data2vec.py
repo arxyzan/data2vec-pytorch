@@ -5,13 +5,35 @@ from .ema import EMA
 
 
 class Data2Vec(nn.Module):
+    """
+    Data2Vec main module.
+
+    This module masks inputs and feeds them to the encoder. The outputs are then either classified for finetuning or
+    left as representations for pretraining.
+
+    Args:
+         encoder (nn.Module)
+         cfg (ConfigDict)
+    """
+
     def __init__(self, encoder, cfg):
         super(Data2Vec, self).__init__()
         self.encoder = Data2VecEncoder(encoder, cfg)
         self.classification_head = nn.Linear(cfg.in_features, cfg.num_classes)
 
     def forward(self, src, trg=None, do_classification=False):
-        src = self.encoder.apply_mask(src)
+        """
+        Encode inputs and pass to encoder. Apply classification head if `do_classification`
+
+        Args:
+            src: src tokens
+            trg: trg tokens
+            do_classification: final classification for finetuning or downstream prediction
+
+        Returns:
+            Either encoder outputs or classification outputs
+        """
+        src = self.encoder.apply_mask(src) if not do_classification else src
         encoder_output = self.encoder(src, trg, features_only=not do_classification)
         if do_classification:
             classification_output = self.classification_head(encoder_output)
@@ -21,6 +43,17 @@ class Data2Vec(nn.Module):
 
 
 class Data2VecEncoder(nn.Module):
+    """
+    Encoder block of Data2Vec.
+
+    This module consists of two parts; the encoder (student) and the EMA of encoder (teacher) which is only used in
+    training. The encoder has to predict the representations of the masked inputs which are to be compared to the
+    outputs from the EMA who predicts the representations of the unmasked inputs.
+
+    Args:
+        encoder (nn.Module): The encoder module that has to implement two methods: `extract_features` & `apply_mask`
+        cfg (ConfigDict)
+    """
     MODALITIES = ['vision', 'text', 'audio']
 
     def __init__(self, encoder: nn.Module, cfg):
@@ -33,7 +66,24 @@ class Data2VecEncoder(nn.Module):
         self.teacher = EMA(self.encoder, cfg)
         self.regression_head = nn.ModuleList()  # custom layers for projection
 
-    def forward(self, src, trg, features_only=False):
+    def forward(self, src, trg=None, features_only=True):
+        """
+        Forward method has two modes:
+            `training`: Encoder predicts representations using masked inputs (src) and the teacher (Encoder EMA)
+            predicts the representations using unmasked inputs (trg)
+
+            `eval`: The encoder extracts features from the unmasked inputs. (trg is left `None` and `features_only` is
+            `True`)
+
+        Args:
+            src: src tokens (masked inputs for training)
+            trg: trg tokens (unmasked inputs for training but left as `None` otherwise)
+            features_only: whether to return encoder outputs (eval model) or proceed to compute EMA outputs (train mode)
+
+        Returns:
+            Either encoder outputs or a tuple of encoder + EMA outputs
+
+        """
         x = self.encoder.extract_features(src)
         if features_only:
             return x
