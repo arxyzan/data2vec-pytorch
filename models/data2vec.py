@@ -49,16 +49,13 @@ class Data2VecEncoder(nn.Module):
                 y = [F.layer_norm(tl.float(), tl.shape[-1:]) for tl in y]
                 y = sum(y) / len(y)
                 y = y.transpose(0, 1)
+                y = F.layer_norm(y.float(), y.shape[-1:])
 
             elif self.modality == 'audio':
                 y = [tl.permute(1, 2, 0) for tl in y]
                 y = [F.instance_norm(tl.float()) for tl in y]
                 y = [tl.transpose(1, 2) for tl in y]
                 y = sum(y) / len(y)
-
-            if self.cfg.layer_norm_targets:
-                y = F.layer_norm(y.float(), y.shape[-1:])
-            elif self.cfg.instance_norm_targets:
                 y = F.instance_norm(y.transpose(1, 2)).transpose(1, 2)
 
         masked_indices = src.eq(self.mask_idx)
