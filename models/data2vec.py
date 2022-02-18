@@ -13,7 +13,7 @@ class Data2Vec(nn.Module):
 
     Args:
          encoder (nn.Module)
-         cfg (ConfigDict)
+         cfg (omegaconf.DictConfig)
     """
 
     def __init__(self, encoder, cfg):
@@ -52,7 +52,7 @@ class Data2VecEncoder(nn.Module):
 
     Args:
         encoder (nn.Module): The encoder module that has to implement two methods: `extract_features` & `apply_mask`
-        cfg (ConfigDict)
+        cfg (omegaconf.DictConfig)
     """
     MODALITIES = ['vision', 'text', 'audio']
 
