@@ -21,21 +21,20 @@ class Data2Vec(nn.Module):
         self.encoder = Data2VecEncoder(encoder, cfg)
         self.classification_head = nn.Linear(cfg.in_features, cfg.num_classes)
 
-    def forward(self, src, trg=None, do_classification=False):
+    def forward(self, src, trg=None):
         """
         Encode inputs and pass to encoder. Apply classification head if `do_classification`
 
         Args:
             src: src tokens
-            trg: trg tokens
-            do_classification: final classification for finetuning or downstream prediction
+            trg: trg tokens. if provided it means the model is in training mode
 
         Returns:
             Either encoder outputs or classification outputs
         """
-        src = self.encoder.apply_mask(src) if not do_classification else src
-        encoder_output = self.encoder(src, trg, features_only=not do_classification)
-        if do_classification:
+        src = self.encoder.apply_mask(src) if trg else src
+        encoder_output = self.encoder(src, trg)
+        if trg is None:
             classification_output = self.classification_head(encoder_output)
             return classification_output
         else:
@@ -66,7 +65,7 @@ class Data2VecEncoder(nn.Module):
         self.teacher = EMA(self.encoder, cfg)
         self.regression_head = nn.ModuleList()  # custom layers for projection
 
-    def forward(self, src, trg=None, features_only=True):
+    def forward(self, src, trg=None):
         """
         Forward method has two modes:
             `training`: Encoder predicts representations using masked inputs (src) and the teacher (Encoder EMA)
@@ -78,14 +77,13 @@ class Data2VecEncoder(nn.Module):
         Args:
             src: src tokens (masked inputs for training)
             trg: trg tokens (unmasked inputs for training but left as `None` otherwise)
-            features_only: whether to return encoder outputs (eval model) or proceed to compute EMA outputs (train mode)
 
         Returns:
             Either encoder outputs or a tuple of encoder + EMA outputs
 
         """
         x = self.encoder.extract_features(src)
-        if features_only:
+        if trg:
             return x
 
         with torch.no_grad():
@@ -99,14 +97,16 @@ class Data2VecEncoder(nn.Module):
                 y = [F.layer_norm(tl.float(), tl.shape[-1:]) for tl in y]
                 y = sum(y) / len(y)
                 y = y.transpose(0, 1)
-                y = F.layer_norm(y.float(), y.shape[-1:])
+                if self.cfg.norm_targets:
+                    y = F.layer_norm(y.float(), y.shape[-1:])
 
             elif self.modality == 'audio':
                 y = [tl.permute(1, 2, 0) for tl in y]
                 y = [F.instance_norm(tl.float()) for tl in y]
                 y = [tl.transpose(1, 2) for tl in y]
                 y = sum(y) / len(y)
-                y = F.instance_norm(y.transpose(1, 2)).transpose(1, 2)
+                if self.cfg.norm_targets:
+                    y = F.instance_norm(y.transpose(1, 2)).transpose(1, 2)
 
         masked_indices = src.eq(self.mask_idx)
         x = x[masked_indices]
