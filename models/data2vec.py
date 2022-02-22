@@ -23,7 +23,7 @@ class Data2Vec(nn.Module):
 
     def forward(self, src, trg=None):
         """
-        Encode inputs and pass to encoder. Apply classification head if `do_classification`
+        Encode inputs and pass to encoder. Apply classification head if trg is not given
 
         Args:
             src: src tokens
