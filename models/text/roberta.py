@@ -44,8 +44,8 @@ class Roberta(nn.Module):
 
         """
         outputs = self(src, output_hidden_states=True, output_attentions=True)
-        encoder_states = outputs['hidden_states'][:-1]  # Ignore last item. we just need encoder outputs
-        encoder_out = outputs['hidden_states'][-1]
+        encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately
+        encoder_out = outputs['hidden_states'][-1]      # last encoder output (accumulated)
         attentions = outputs['attentions']
         return {
             'encoder_states': encoder_states,
