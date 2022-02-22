@@ -4,8 +4,7 @@ Train Data2Vec for text built on RoBERTa
 import torch
 import torch.nn as nn
 
-from models.text.roberta import Roberta
-from models.data2vec import Data2Vec
+from models import Data2Vec, Roberta
 
 
 class Trainer:
