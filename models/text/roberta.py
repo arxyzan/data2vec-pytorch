@@ -3,26 +3,61 @@ import torch.nn as nn
 
 
 class Roberta(nn.Module):
+    """
+    Roberta model using HuggingFace.
+
+    Args:
+        cfg: An omegaconf.DictConf instance containing all the configurations
+        vocab_size: Total size of the tokens dictionary
+    """
+
     def __init__(self, cfg, vocab_size):
         super(Roberta, self).__init__()
         self.cfg = cfg
         self.encoder = RobertaModel(RobertaConfig(vocab_size=vocab_size))
 
-    def apply_mask(self): ...
+    def apply_mask(self):
+        ...
 
     def forward(self, src, **kwargs):
-        outputs = self.encoder(input_ids=src, output_hidden_states=True, output_attentions=True, **kwargs)
+        """
+        Fetch outputs from the encoder model. This method directly calls the forward method of RobertaModel. In case you
+        need to get specific outputs from the model provide them as keyword args.
+        Args:
+            src: source tokens
+            **kwargs: Input parameters to transformers.RobertaModel
+
+        Returns:
+            A dictionary of encoder outputs
+        """
+        outputs = self.encoder(input_ids=src, **kwargs)
         return outputs
 
-    def extract_features(self, src, **kwargs):
-        outputs = self(src, **kwargs)
-        outputs['hidden_states'] = outputs['hidden_states'][:-1]  # Ignore last item. we just need encoder outputs
-        return list(outputs)
+    def extract_features(self, src):
+        """
+        Extract features from encoder and attention layers.
+
+        Args:
+            src: source tokens. masked
+
+        Returns:
+
+        """
+        outputs = self(src, output_hidden_states=True, output_attentions=True)
+        encoder_states = outputs['hidden_states'][:-1]  # Ignore last item. we just need encoder outputs
+        encoder_out = outputs['hidden_states'][-1]
+        attentions = outputs['attentions']
+        return {
+            'encoder_states': encoder_states,
+            'encoder_out': encoder_out,
+            'attentions': attentions
+        }
 
 
 if __name__ == '__main__':
     model = Roberta(None, 50265)
     tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
     inputs = tokenizer("The capital of France is <mask>.", return_tensors="pt")
-    outputs = model(inputs['input_ids'])
+    features = model.extract_features(inputs['input_ids'])
+    outputs = model(inputs['input_ids'], output_hidden_states=True, output_attentions=True)
     print(outputs)
