@@ -8,7 +8,7 @@ class Data2Vec(nn.Module):
     """
     Data2Vec main module.
 
-    This module masks inputs and feeds them to the encoder. The outputs are then either classified for finetuning or
+    This module masks inputs and feeds them to the encoder. The outputs are then either classified for fine-tuning or
     left as representations for pretraining.
 
     Args:
@@ -93,14 +93,14 @@ class Data2VecEncoder(nn.Module):
             y = y[self.cfg.teacher_features]
             y = y[-self.cfg.top_k_layers:]
 
-            if self.modality in ['vision', 'text']:
+            if self.modality in ['vision', 'text']:  # Follow the same layer normalization procedure for text and vision
                 y = [F.layer_norm(tl.float(), tl.shape[-1:]) for tl in y]
                 y = sum(y) / len(y)
                 y = y.transpose(0, 1)
                 if self.cfg.norm_targets:
                     y = F.layer_norm(y.float(), y.shape[-1:])
 
-            elif self.modality == 'audio':
+            elif self.modality == 'audio':  # Use instance normalization for audio
                 y = [tl.permute(1, 2, 0) for tl in y]
                 y = [F.instance_norm(tl.float()) for tl in y]
                 y = [tl.transpose(1, 2) for tl in y]

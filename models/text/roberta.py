@@ -7,7 +7,7 @@ class Roberta(nn.Module):
     Roberta model using HuggingFace.
 
     Args:
-        cfg: An omegaconf.DictConf instance containing all the configurations
+        cfg: An omegaconf.DictConf instance containing all the configurations.
         vocab_size: Total size of the tokens dictionary
     """
 
@@ -41,6 +41,7 @@ class Roberta(nn.Module):
             src: source tokens. masked
 
         Returns:
+            A dictionary of encoder outputs including encoder outputs and attentions outputs
 
         """
         outputs = self(src, output_hidden_states=True, output_attentions=True)
