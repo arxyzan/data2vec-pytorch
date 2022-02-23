@@ -1,4 +1,4 @@
-# data2vec-pytorch [Incomplete]
+# data2vec-pytorch [In Progress]
 ##### PyTorch implementation of "[data2vec: A General Framework for Self-supervised Learning in Speech, Vision and Language](https://arxiv.org/abs/2202.03555)" By Meta AI (FAIR)
 Data2Vec is the first high-performance self-supervised algorithm that learns the same way in multiple modalities, including speech, vision and text. 
 Most machines learn exclusively from labeled data. However, through self-supervised learning, machines are able to learn about the world just by observing it 
