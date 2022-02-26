@@ -1,2 +1,2 @@
 from .data2vec import Data2Vec
-from text import Roberta
+from .ema import EMA

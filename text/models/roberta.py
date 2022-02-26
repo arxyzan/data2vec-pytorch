@@ -11,10 +11,10 @@ class Roberta(nn.Module):
         vocab_size: Total size of the tokens dictionary
     """
 
-    def __init__(self, cfg, vocab_size):
+    def __init__(self, cfg, **kwargs):
         super(Roberta, self).__init__()
         self.cfg = cfg
-        self.encoder = RobertaModel(RobertaConfig(vocab_size=vocab_size))
+        self.encoder = RobertaModel(RobertaConfig(**kwargs))
 
     def apply_mask(self):
         ...
@@ -22,7 +22,7 @@ class Roberta(nn.Module):
     def forward(self, src, **kwargs):
         """
         Fetch outputs from the encoder model. This method directly calls the forward method of RobertaModel. In case you
-        need to get specific outputs from the model provide them as keyword args.
+        need to get specific outputs from the model, provide them as keyword args.
         Args:
             src: source tokens
             **kwargs: Input parameters to transformers.RobertaModel
