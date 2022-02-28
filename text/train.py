@@ -1,5 +1,5 @@
 """
-Train Data2Vec for text built on RoBERTa
+Train Data2Vec for text. Use the models under `models` module, e.g, RoBERTa
 """
 import torch
 import torch.nn as nn

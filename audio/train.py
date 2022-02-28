@@ -1,10 +1,11 @@
 """
-Train Data2Vec for text built on RoBERTa
+Train Data2Vec for audio. Use the models under `models` module, e.g, Wav2Vec2
 """
 import torch
 import torch.nn as nn
 
 from data2vec import Data2Vec
+from models import Wav2Vec2
 
 
 class Trainer:
