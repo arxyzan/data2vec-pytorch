@@ -56,7 +56,7 @@ class Roberta(nn.Module):
 
 
 if __name__ == '__main__':
-    model = Roberta(None, 50265)
+    model = Roberta(None, vocab_size=50265)
     tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
     inputs = tokenizer("The capital of France is <mask>.", return_tensors="pt")
     features = model.extract_features(inputs['input_ids'])
