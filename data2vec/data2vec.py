@@ -8,9 +8,6 @@ class Data2Vec(nn.Module):
     """
     Data2Vec main module.
 
-    This module masks inputs and feeds them to the encoder. The outputs are then either classified for fine-tuning or
-    left as representations for pretraining.
-
     Args:
          encoder (nn.Module)
          cfg (omegaconf.DictConfig)
@@ -26,13 +23,12 @@ class Data2Vec(nn.Module):
         Encode inputs and pass to encoder. Apply classification head if trg is not given
 
         Args:
-            src: src tokens
-            trg: trg tokens. if provided it means the model is in training mode
+            src: source tokens
+            trg: target tokens. if provided it means the model is in training mode
 
         Returns:
             Either encoder outputs or classification outputs
         """
-        src = self.encoder.apply_mask(src) if trg else src
         encoder_output = self.encoder(src, trg)
         if trg is None:
             classification_output = self.classification_head(encoder_output)

@@ -5,7 +5,7 @@ import torch.nn as nn
 
 class BEiT(nn.Module):
     """
-    BEiT model using HuggingFace.
+    BEiT model using HuggingFace Transformers
 
     Args:
         cfg: An omegaconf.DictConf instance containing all the configurations.
@@ -16,9 +16,6 @@ class BEiT(nn.Module):
         super(BEiT, self).__init__()
         self.cfg = cfg
         self.encoder = BeitModel(BeitConfig(**kwargs))
-
-    def apply_mask(self):
-        ...
 
     def forward(self, src, **kwargs):
         """

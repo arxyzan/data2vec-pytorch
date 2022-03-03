@@ -1,10 +1,12 @@
 import torch
 from torch.utils.data import Dataset
-from transformers.data import DataCollatorForLanguageModeling
 from datasets import load_dataset
 
 
 class WikiText(Dataset):
+    """
+    A Dataset instance for WikiText dataset loaded from HuggingFace datasets.
+    """
     def __init__(self, path, split, tokenizer, mlm_probability=0.15):
         super(WikiText, self).__init__()
         self.data = load_dataset('wikitext', path)[split]
@@ -15,11 +17,30 @@ class WikiText(Dataset):
         return len(self.data)
 
     def __getitem__(self, index):
+        """
+        Only return tokens from raw text with no additions e.g, padding, bos/eos, etc.
+        Args:
+            index: sample index to pick from dataset
+
+        Returns:
+            tokenized outputs
+        """
         raw_text = self.data[index]['text']
         tokens = self.tokenizer(raw_text)
         return tokens
 
     def _mask_tokens(self, inputs, special_tokens_mask=None):
+        """
+        Prepare masked tokens inputs/labels for masked language modeling: 80% MASK, 10% random, 10% original. Ported
+         from `transformers.data.DataCollatorForLanguageModeling.torch_mask_tokens()`
+        Args:
+            inputs: batch of input tokens
+            special_tokens_mask:
+
+        Returns:
+            a dict batch of masked and padded inputs/labels
+
+        """
         labels = inputs.clone()
         # We sample a few tokens in each sequence for MLM training (with probability `self.mlm_probability`)
         probability_matrix = torch.full(labels.shape, self.mlm_probability)
@@ -49,7 +70,8 @@ class WikiText(Dataset):
 
     def collate_fn(self, batch):
         """
-        Collate the batch of data using BERT masking strategy
+        Collate the batch of data using BERT masking strategy. carefully ported from
+         transformers.data.DataCollatorForLanguageModeling
         Args:
             batch: batch of data
 

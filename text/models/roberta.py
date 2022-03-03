@@ -16,9 +16,6 @@ class Roberta(nn.Module):
         self.cfg = cfg
         self.encoder = RobertaModel(RobertaConfig(**kwargs))
 
-    def apply_mask(self):
-        ...
-
     def forward(self, src, **kwargs):
         """
         Fetch outputs from the encoder model. This method directly calls the forward method of RobertaModel. In case you

@@ -6,6 +6,7 @@ import torch.nn as nn
 
 from data2vec import Data2Vec
 from models import Roberta
+from dataset import WikiText
 
 
 class Trainer:

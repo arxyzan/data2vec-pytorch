@@ -24,11 +24,12 @@ This makes sense given the vastly different nature of the input data.</cite>
 
 This implementation differs in the fact that a single Data2Vec model is provided powered by a custom encoder (implemented using PyTorch + HuggingFace Transformers) and tries to unify the whole concept in a single module. 
 The key concept is that there must be modality-specific feature extractions and masking strategies.
-The `Data2Vec` model takes in an encoder which has to implement these two:
-1. `extract_features`: output of the transformer/projection layers stacked in a list
-2. `apply_mask`: masking strategy to mask inputs/features
 
-The encoder models (under `models` directory) are wrappers around HuggingFace Transformers models, but it's possible to use your own encoders 
+- **Masking:** Depending on the modality, masking is done in the dataset's data collator function or in the forward method of the encoder.
+
+- **Feature Extraction:** Features extraction is implemented as a method inside the encoder. The method must return outputs from all Encoder blocks of the transformer model. HuggingFace Transformers/Fairseq models return these outputs out of the box.
+
+The encoder models (under `models` directory of each modality) are wrappers around HuggingFace Transformers models, but it's possible to use your own encoders 
 and provide the latter methods in them. Just make sure that your encoders must be Transformer-based according to the paper and outputs from every encoder layer must be provided.
 
 ### Train

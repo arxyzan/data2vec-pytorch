@@ -18,9 +18,6 @@ class Wav2Vec2(nn.Module):
         self.feature_extractor = Wav2Vec2FeatureExtractor(**kwargs)
         self.encoder = Wav2Vec2Model(Wav2Vec2Config(**kwargs))
 
-    def apply_mask(self):
-        ...
-
     def forward(self, src, **kwargs):
         """
         Fetch outputs from the encoder model. This method directly calls the forward method of Wav2Vec2Model. In case
