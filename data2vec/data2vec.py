@@ -13,10 +13,12 @@ class Data2Vec(nn.Module):
          cfg (omegaconf.DictConfig)
     """
 
-    def __init__(self, encoder, cfg):
+    def __init__(self, encoder, cfg, **kwargs):
         super(Data2Vec, self).__init__()
-        self.encoder = Data2VecEncoder(encoder, cfg)
-        self.classification_head = nn.Linear(cfg.in_features, cfg.num_classes)
+        self.__dict__.update(kwargs)
+        self.encoder = Data2VecEncoder(encoder, cfg, **kwargs)
+        # self.classification_head = nn.Linear(cfg.in_features, cfg.num_classes)
+        self.classification_head = None
 
     def forward(self, src, trg=None):
         """
@@ -51,15 +53,34 @@ class Data2VecEncoder(nn.Module):
     """
     MODALITIES = ['vision', 'text', 'audio']
 
-    def __init__(self, encoder: nn.Module, cfg):
+    def __init__(self, encoder: nn.Module, cfg, **kwargs):
         super(Data2VecEncoder, self).__init__()
         self.modality = cfg.modality
+        self.embed_dim = cfg.model.embed_dim
         assert cfg.modality in self.MODALITIES
         self.encoder = encoder
+        self.__dict__.update(kwargs)
 
         self.cfg = cfg
         self.teacher = EMA(self.encoder, cfg)
-        self.regression_head = nn.ModuleList()  # custom layers for projection
+        self.regression_head = self._build_regression_head()  # custom layers for projection
+
+    def _build_regression_head(self):
+        if self.modality == 'text':
+            embed_dim = self.embed_dim
+            curr_dim = embed_dim
+            projs = []
+            for i in range(self.cfg.model.head_layers - 1):
+                next_dim = embed_dim * 2 if i == 0 else curr_dim
+                projs.append(nn.Linear(curr_dim, next_dim))
+                projs.append(nn.GELU())
+                curr_dim = next_dim
+
+            projs.append(nn.Linear(curr_dim, embed_dim))
+            return nn.Sequential(*projs)
+
+        if self.modality == 'audio':
+            return nn.Linear(self.embed_dim, self.embed_dim)
 
     def forward(self, src, trg=None):
         """
@@ -78,21 +99,19 @@ class Data2VecEncoder(nn.Module):
             Either encoder outputs or a tuple of encoder + EMA outputs
 
         """
-        x = self.encoder.extract_features(src)
-        if trg:
+        x = self.encoder.extract_features(src)['encoder_out']
+        if trg is None:
             return x
 
         with torch.no_grad():
             self.teacher.model.eval()
 
-            y = self.teacher.model(trg)
-            y = y[self.cfg.teacher_features]
-            y = y[-self.cfg.top_k_layers:]
+            y = self.teacher.model.extract_features(trg)['encoder_states']
+            y = y[-self.cfg.model.average_top_k_layers:]
 
             if self.modality in ['vision', 'text']:  # Follow the same layer normalization procedure for text and vision
                 y = [F.layer_norm(tl.float(), tl.shape[-1:]) for tl in y]
                 y = sum(y) / len(y)
-                y = y.transpose(0, 1)
                 if self.cfg.norm_targets:
                     y = F.layer_norm(y.float(), y.shape[-1:])
 
@@ -101,7 +120,7 @@ class Data2VecEncoder(nn.Module):
                 y = [F.instance_norm(tl.float()) for tl in y]
                 y = [tl.transpose(1, 2) for tl in y]
                 y = sum(y) / len(y)
-                if self.cfg.norm_targets:
+                if self.cfg.normalize_targets:
                     y = F.instance_norm(y.transpose(1, 2)).transpose(1, 2)
 
         masked_indices = src.eq(self.mask_idx)
