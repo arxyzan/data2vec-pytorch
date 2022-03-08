@@ -1,1 +1,1 @@
-from .roberta import Roberta
+from .roberta import Roberta, RobertaTokenizer

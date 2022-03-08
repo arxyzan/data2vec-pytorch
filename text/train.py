@@ -109,6 +109,6 @@ class Trainer:
 
 
 if __name__ == '__main__':
-    cfg = omegaconf.OmegaConf.load('configs/roberta-test.yaml')
+    cfg = omegaconf.OmegaConf.load('configs/roberta-pretraining.yaml')
     trainer = Trainer(cfg)
     trainer.train()
