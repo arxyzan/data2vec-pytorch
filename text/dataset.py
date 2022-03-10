@@ -1,17 +1,35 @@
 import torch
 from torch.utils.data import Dataset
 from datasets import load_dataset
+from tqdm import tqdm
 
 
 class WikiText(Dataset):
     """
     A Dataset instance for WikiText dataset loaded from HuggingFace datasets.
     """
-    def __init__(self, path, split, tokenizer, mlm_probability=0.15):
+
+    def __init__(self, cfg, split, tokenizer):
         super(WikiText, self).__init__()
-        self.data = load_dataset('wikitext', path)[split]
+        self.cfg = cfg
+        self.path = cfg.dataset.name
+        self.mlm_probability = cfg.dataset.mlm_probability
+        self.min_seq_len = cfg.dataset.min_seq_len
+        raw_data = load_dataset('wikitext', self.path)[split]
+        self.data = self.clean_dataset(raw_data) if self.cfg.dataset.clean_dataset else raw_data
         self.tokenizer = tokenizer
-        self.mlm_probability = mlm_probability
+
+    def clean_dataset(self, data):
+        """
+        Remove short or empty samples
+        """
+        print('Cleaning dataset ...')
+        texts = []
+        with tqdm(data) as tbar:
+            for i, x in enumerate(tbar):
+                if len(x['text']) > self.min_seq_len:
+                    texts.append(x)
+        return texts
 
     def __len__(self):
         return len(self.data)
@@ -91,9 +109,13 @@ class WikiText(Dataset):
 
 if __name__ == '__main__':
     from transformers.models.roberta import RobertaTokenizer
+    from transformers.data import DataCollatorForLanguageModeling
     from torch.utils.data import DataLoader
+    from omegaconf import OmegaConf
 
-    dataset = WikiText('wikitext-103-v1', 'train', RobertaTokenizer.from_pretrained('roberta-base'))
+    cfg = OmegaConf.load('configs/roberta-pretraining.yaml')
+    dataset = WikiText(cfg, 'train', RobertaTokenizer.from_pretrained('roberta-base'))
     dataloader = DataLoader(dataset, batch_size=1, collate_fn=dataset.collate_fn)
-    batch = next(iter(dataloader))
+    data_iter = iter(dataloader)
+    batch = next(data_iter)
     print(batch)
