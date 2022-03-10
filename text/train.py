@@ -29,13 +29,11 @@ class Trainer:
         self.model = Data2Vec(encoder=self.encoder, cfg=cfg, mask_idx=self.tokenizer.mask_token_id)
         self.model.to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), cfg.optimizer.lr)
-        self.criterion = nn.SmoothL1Loss(reduction='None', beta=cfg.criterion.loss_beta)
+        self.criterion = nn.SmoothL1Loss(reduction='none', beta=cfg.criterion.loss_beta)
         self.criterion.to(self.device)
         # Datasets & Data Loaders
-        self.train_dataset = WikiText(cfg.dataset.name, 'train', self.tokenizer,
-                                      mlm_probability=cfg.dataset.mlm_probability)
-        self.valid_dataset = WikiText(cfg.dataset.name, 'test', self.tokenizer,
-                                      mlm_probability=cfg.dataset.mlm_probability)
+        self.train_dataset = WikiText(cfg, 'train', self.tokenizer)
+        self.valid_dataset = WikiText(cfg, 'test', self.tokenizer)
         self.train_loader = DataLoader(self.train_dataset, batch_size=cfg.train.batch_size,
                                        collate_fn=self.train_dataset.collate_fn)
         self.valid_loader = DataLoader(self.valid_dataset, batch_size=cfg.train.val_batch_size,
@@ -51,7 +49,7 @@ class Trainer:
         trg = batch['labels'].to(self.device)
         x, y = self.model(src, trg)
         # TODO implement backward prop
-        loss = self.criterion(x, y)
+        loss = self.criterion(x.float(), y.float()).sum(dim=-1).sum().div(x.size(0))
         loss.backward()
         self.optimizer.step()
         self.optimizer.zero_grad()
