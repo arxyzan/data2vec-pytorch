@@ -6,6 +6,7 @@ class EMA:
     """
     Modified version of class fairseq.models.ema.EMA.
     """
+
     def __init__(self, model: nn.Module, cfg, device=None, skip_keys=None):
         self.model = model
         self.model.requires_grad_(False)
@@ -20,7 +21,7 @@ class EMA:
         ema_state_dict = {}
         ema_params = self.model.state_dict()
         for key, param in new_model.state_dict().items():
-            ema_param = ema_params[key]
+            ema_param = ema_params[key].float()
             if key in self.skip_keys:
                 ema_param = param.to(dtype=ema_param.dtype).clone()
             else:
@@ -34,3 +35,9 @@ class EMA:
         d = self.model.state_dict()
         model.load_state_dict(d, strict=False)
         return model
+
+    @staticmethod
+    def get_annealed_rate(start, end, curr_step, total_steps):
+        r = end - start
+        pct_remaining = 1 - curr_step / total_steps
+        return end - r * pct_remaining

@@ -48,7 +48,6 @@ class Trainer:
         src = batch['input_ids'].to(self.device)
         trg = batch['labels'].to(self.device)
         x, y = self.model(src, trg)
-        # TODO implement backward prop
         loss = self.criterion(x.float(), y.float()).sum(dim=-1).sum().div(x.size(0))
         loss.backward()
         self.optimizer.step()
@@ -71,6 +70,7 @@ class Trainer:
                   bar_format='{desc:<16}{percentage:3.0f}%|{bar:70}{r_bar}', ascii=" #") as iterator:
             for batch in iterator:
                 loss = self.train_step(batch)
+                self.model.ema_step()
                 self.loss_tracker.update(loss)
                 avg_loss = self.loss_tracker.avg
                 iterator.set_postfix(loss=avg_loss)

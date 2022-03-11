@@ -17,8 +17,31 @@ class Data2Vec(nn.Module):
         super(Data2Vec, self).__init__()
         self.__dict__.update(kwargs)
         self.encoder = Data2VecEncoder(encoder, cfg, **kwargs)
+
+        self.cfg = cfg
+        self.ema = self.encoder.teacher
+        self.ema_decay = self.cfg.model.ema_decay
+        self.ema_end_decay = self.cfg.model.ema_end_decay
+        self.ema_anneal_end_step = self.cfg.model.ema_anneal_end_step
+
+        # TODO fix classification head
         # self.classification_head = nn.Linear(cfg.in_features, cfg.num_classes)
         self.classification_head = None
+
+    def ema_step(self):
+        if self.ema_decay != self.ema_end_decay:
+            if self.ema.num_updates >= self.ema_anneal_end_step:
+                decay = self.ema_end_decay
+            else:
+                decay = self.encoder.teacher.get_annealed_rate(
+                    self.ema_decay,
+                    self.ema_end_decay,
+                    self.ema.num_updates,
+                    self.ema_anneal_end_step,
+                )
+            self.ema.decay = decay
+        if self.ema.decay < 1:
+            self.ema.step(self.encoder.encoder)
 
     def forward(self, src, trg=None):
         """
@@ -88,8 +111,7 @@ class Data2VecEncoder(nn.Module):
             `training`: Encoder predicts representations using masked inputs (src) and the teacher (Encoder EMA)
             predicts the representations using unmasked inputs (trg)
 
-            `eval`: The encoder extracts features from the unmasked inputs. (trg is left `None` and `features_only` is
-            `True`)
+            `eval`: The encoder extracts features from the unmasked inputs. (trg is left as `None`)
 
         Args:
             src: src tokens (masked inputs for training)
