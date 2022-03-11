@@ -19,6 +19,7 @@ model:
   average_top_k_layers: 10
   embed_dim: 768
   head_layers: 2
+  num_classes: null
   encoder_checkpoint: 'roberta-base'
   log_dir: 'logs'
   normalize_targets: false

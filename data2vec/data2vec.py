@@ -24,9 +24,9 @@ class Data2Vec(nn.Module):
         self.ema_end_decay = self.cfg.model.ema_end_decay
         self.ema_anneal_end_step = self.cfg.model.ema_anneal_end_step
 
-        # TODO fix classification head
-        # self.classification_head = nn.Linear(cfg.in_features, cfg.num_classes)
-        self.classification_head = None
+        # Only create classification head for fine-tuning (num_classes must be present in cfg.model)
+        if cfg.model.num_classes is not None:
+            self.classification_head = nn.Linear(cfg.model.embed_dim, cfg.model.num_classes)
 
     def ema_step(self):
         if self.ema_decay != self.ema_end_decay:
