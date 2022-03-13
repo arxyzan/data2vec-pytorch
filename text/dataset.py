@@ -21,13 +21,14 @@ class WikiText(Dataset):
 
     def clean_dataset(self, data):
         """
-        Remove short or empty samples
+        Cleanup dataset by removing invalid sized samples, etc.
         """
         print('Cleaning dataset ...')
+        min_seq_len, max_seq_len = self.cfg.data.valid_seq_lenghts
         texts = []
-        with tqdm(data) as tbar:
+        with tqdm(data, desc='Removing invalid sized inputs: ') as tbar:
             for i, x in enumerate(tbar):
-                if len(x['text']) > self.min_seq_len:
+                if len(x['text']) in range(min_seq_len, max_seq_len + 1):
                     texts.append(x)
         return texts
 
@@ -109,7 +110,6 @@ class WikiText(Dataset):
 
 if __name__ == '__main__':
     from transformers.models.roberta import RobertaTokenizer
-    from transformers.data import DataCollatorForLanguageModeling
     from torch.utils.data import DataLoader
     from omegaconf import OmegaConf
 

@@ -13,7 +13,7 @@ optimizer:
 dataset:
   name: 'wikitext-103-v1'
   mlm_probability: 0.15
-  min_seq_len: 10
+  valid_seq_lenghts: [12, 512]
   clean_dataset: false
 model:
   average_top_k_layers: 10
