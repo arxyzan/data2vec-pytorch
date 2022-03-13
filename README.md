@@ -1,4 +1,4 @@
-# data2vec-pytorch [In Progress]
+# data2vec-pytorch
 ##### PyTorch implementation of "[data2vec: A General Framework for Self-supervised Learning in Speech, Vision and Language](https://arxiv.org/abs/2202.03555)" By Meta AI (FAIR)
 Data2Vec is the first high-performance self-supervised algorithm that learns the same way in multiple modalities, including speech, vision and text. 
 Most machines learn exclusively from labeled data. However, through self-supervised learning, machines are able to learn about the world just by observing it 
@@ -16,7 +16,7 @@ In summary, the method is as follows: <br>
 
 You can read the paper for more detail.
 
-### Implementation
+## Implementation
 Data2Vec is already implemented in [fairseq](https://github.com/pytorch/fairseq/tree/main/examples/data2vec) in which for all modalities there is a seperate implementation (text, vision, audio). According to the paper:
 > <cite>Our primary is to design a single learning mechanism for different modalities. 
 Despite the unified learning regime, we still use modality-specific features extractors and masking strategies. 
@@ -32,11 +32,27 @@ The key concept is that there must be modality-specific feature extractions and 
 The encoder models (under `models` directory of each modality) are wrappers around HuggingFace Transformers models, but it's possible to use your own encoders 
 and provide the latter methods in them. Just make sure that your encoders must be Transformer-based according to the paper and outputs from every encoder layer must be provided.
 
-### Train
-TODO
+## Train
+#### **NLP**
+Train a Language Model based on RoBERTa (HuggingFace)
 
-### Evaluation
-TODO
+Configure the related properties in `text/configs/roberta-pretraining.yaml` and run:
+```bash
+cd text
+python train.py
+```
+_Want to train based on another LM encoder?_
+_Define your model in a file under `text/models` and implement your own module and don't forget to provide an `extract_features` method. You can figure out the right structure using the already implemented models under `text/models`._
 
-### Contributions
-This project needs a lot of work. If you can help me out with this just let me know! Thanx.
+#### **Vision**
+In Progress ...
+
+#### **Speech**
+In Progress ...
+
+## Fine-tuning
+In Progress ...
+
+
+## Contributions
+Any contribution regarding training, development and issues are welcome!
