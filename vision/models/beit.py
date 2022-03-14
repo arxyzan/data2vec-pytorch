@@ -19,8 +19,8 @@ class BEiT(nn.Module):
 
     def forward(self, src, **kwargs):
         """
-        Fetch outputs from the encoder model. This method directly calls the forward method of BEiTModel. In case you
-        need to get specific outputs from the model, provide them as keyword args.
+        Forward inputs through the encoder and extract transformer/attention layers outputs
+
         Args:
             src: input pixels with shape [batch_size, channels, height, width]
             **kwargs: Input parameters to transformers.BeitModel
@@ -28,23 +28,9 @@ class BEiT(nn.Module):
         Returns:
             A dictionary of encoder outputs
         """
-        outputs = self.encoder(pixel_values=src, **kwargs)
-        return outputs
-
-    def extract_features(self, src):
-        """
-        Extract features from encoder and attention layers.
-
-        Args:
-            src: masked source tokens
-
-        Returns:
-            A dictionary of encoder outputs including encoder outputs and attentions outputs
-
-        """
-        outputs = self(src, output_hidden_states=True, output_attentions=True)
+        outputs = self.encoder(pixel_values=src, output_hidden_states=True, output_attentions=True, **kwargs)
         encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately
-        encoder_out = outputs['hidden_states'][-1]      # last encoder output (accumulated)
+        encoder_out = outputs['hidden_states'][-1]  # last encoder output (accumulated)
         attentions = outputs['attentions']
         return {
             'encoder_states': encoder_states,
@@ -66,6 +52,5 @@ if __name__ == '__main__':
     image = T.Compose([T.Resize((224, 224)),
                        T.ToTensor(),
                        T.Normalize(mean=.5, std=.5)])(image).unsqueeze(0)
-    outputs = model(image, output_hidden_states=True, output_attentions=True)
-    features = model.extract_features(image)
+    outputs = model(image)
     print(outputs)

@@ -20,33 +20,19 @@ class Wav2Vec2(nn.Module):
 
     def forward(self, src, **kwargs):
         """
-        Fetch outputs from the encoder model. This method directly calls the forward method of Wav2Vec2Model. In case
-         you need to get specific outputs from the model, provide them as keyword args.
+        Forward inputs through the encoder and extract transformer/attention layers outputs
+
         Args:
-            src:
+            src: raw audio array
             **kwargs: Input parameters to transformers.Wav2Vec2Model
 
         Returns:
             A dictionary of encoder outputs
         """
         src = self.feature_extractor(src, return_tensors='pt')
-        outputs = self.encoder(**src, **kwargs)
-        return outputs
-
-    def extract_features(self, src):
-        """
-        Extract features from encoder and attention layers.
-
-        Args:
-            src: masked source tokens
-
-        Returns:
-            A dictionary of encoder outputs including encoder outputs and attentions outputs
-
-        """
-        outputs = self(src, output_hidden_states=True, output_attentions=True)
+        outputs = self.encoder(**src, output_hidden_states=True, output_attentions=True, **kwargs)
         encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately
-        encoder_out = outputs['hidden_states'][-1]      # last encoder output (accumulated)
+        encoder_out = outputs['hidden_states'][-1]  # last encoder output (accumulated)
         attentions = outputs['attentions']
         return {
             'encoder_states': encoder_states,
@@ -64,7 +50,7 @@ if __name__ == '__main__':
 
     model = Wav2Vec2(None)
 
-    features = model.extract_features(sample)
+    features = model(sample)
     print(features)
 
 

@@ -71,7 +71,7 @@ class Data2VecEncoder(nn.Module):
     outputs from the EMA who predicts the representations of the unmasked inputs.
 
     Args:
-        encoder (nn.Module): The encoder module that has to implement two methods: `extract_features` & `apply_mask`
+        encoder (nn.Module): The encoder module that extracts transformer outputs
         cfg (omegaconf.DictConfig)
     """
     MODALITIES = ['vision', 'text', 'audio']
@@ -121,20 +121,20 @@ class Data2VecEncoder(nn.Module):
             Either encoder outputs or a tuple of encoder + EMA outputs
 
         """
-        x = self.encoder.extract_features(src)['encoder_out']
+        x = self.encoder(src)['encoder_out']
         if trg is None:
             return x
 
         with torch.no_grad():
             self.teacher.model.eval()
 
-            y = self.teacher.model.extract_features(trg)['encoder_states']
+            y = self.teacher.model(trg)['encoder_states']
             y = y[-self.cfg.model.average_top_k_layers:]
 
             if self.modality in ['vision', 'text']:  # Follow the same layer normalization procedure for text and vision
                 y = [F.layer_norm(tl.float(), tl.shape[-1:]) for tl in y]
                 y = sum(y) / len(y)
-                if self.cfg.norm_targets:
+                if self.cfg.normalize_targets:
                     y = F.layer_norm(y.float(), y.shape[-1:])
 
             elif self.modality == 'audio':  # Use instance normalization for audio

@@ -18,30 +18,16 @@ class Roberta(nn.Module):
 
     def forward(self, src, **kwargs):
         """
-        Fetch outputs from the encoder model. This method directly calls the forward method of RobertaModel. In case you
-        need to get specific outputs from the model, provide them as keyword args.
-        Args:
-            src: source tokens
-            **kwargs: Input parameters to transformers.RobertaModel
-
-        Returns:
-            A dictionary of encoder outputs
-        """
-        outputs = self.encoder(input_ids=src, **kwargs)
-        return outputs
-
-    def extract_features(self, src):
-        """
-        Extract features from encoder and attention layers.
+        Forward inputs through the encoder and extract transformer/attention layers outputs
 
         Args:
-            src: source tokens. masked
+            src: masked source tokens
 
         Returns:
             A dictionary of encoder outputs including encoder outputs and attentions outputs
 
         """
-        outputs = self(src, output_hidden_states=True, output_attentions=True)
+        outputs = self.encoder(src, output_hidden_states=True, output_attentions=True, **kwargs)
         encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately
         encoder_out = outputs['hidden_states'][-1]      # last encoder output (accumulated)
         attentions = outputs['attentions']
@@ -56,6 +42,5 @@ if __name__ == '__main__':
     tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
     model = Roberta(None, vocab_size=tokenizer.vocab_size)
     inputs = tokenizer("The capital of France is <mask>.", return_tensors="pt")
-    features = model.extract_features(inputs['input_ids'])
-    outputs = model(inputs['input_ids'], output_hidden_states=True, output_attentions=True)
+    outputs = model(inputs['input_ids'])
     print(outputs)
