@@ -12,10 +12,10 @@ import omegaconf
 from omegaconf import DictConfig
 from tqdm import tqdm
 
+from text.models import Roberta, RobertaTokenizer
+from text.dataset import WikiText
+from text.utils import AverageMeter
 from data2vec import Data2Vec
-from models import Roberta, RobertaTokenizer
-from dataset import WikiText
-from utils import AverageMeter
 
 
 class Trainer:
@@ -107,6 +107,13 @@ class Trainer:
 
 
 if __name__ == '__main__':
-    cfg = omegaconf.OmegaConf.load('configs/roberta-pretraining.yaml')
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, help='path to yaml config file')
+    args = parser.parse_args()
+
+    cfg_path = args.config
+
+    cfg = omegaconf.OmegaConf.load(cfg_path)
     trainer = Trainer(cfg)
     trainer.train()

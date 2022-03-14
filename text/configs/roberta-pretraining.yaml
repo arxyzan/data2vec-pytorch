@@ -1,10 +1,10 @@
 modality: 'text'
 common:
-  device: 'cpu'
+  device: 'cuda'
 train:
   batch_size: 32
   num_epochs: 20
-  weights_dir: 'weights'
+  weights_dir: 'text/weights/roberta-pretrain'
 criterion:
   loss_beta: 4
 optimizer:
@@ -21,7 +21,7 @@ model:
   head_layers: 2
   num_classes: null
   encoder_checkpoint: 'roberta-base'
-  log_dir: 'logs'
+  log_dir: 'text/logs/roberta-pretrain'
   normalize_targets: false
   ema_decay: 0.999
   ema_end_decay: 0.9999
