@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from text.models import Roberta, RobertaTokenizer
 from text.dataset import WikiText
-from text.utils import AverageMeter
+from utils import AverageMeter
 from data2vec import Data2Vec
 
 
