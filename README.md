@@ -29,7 +29,7 @@ The key concept is that there must be modality-specific feature extractions and 
 
 - **Feature Extraction:** Features are the outputs from the transformer/attention layers. So the forward method must return outputs from all Encoder blocks of the transformer model. HuggingFace Transformers/Fairseq models return these outputs out of the box.
 
-The encoder models (under `models` directory of each modality) are wrappers around HuggingFace Transformers models, but it's possible to use your own encoders 
+The encoder models (an `encoder.py` for each modality) are wrappers around HuggingFace Transformers models, but it's possible to use your own encoders 
 and provide the above methods in them. Just make sure that your encoders must be Transformer-based according to the paper and outputs from every encoder layer must be provided.
 
 ## Train
@@ -40,8 +40,6 @@ Configure the related properties in `text/configs/roberta-pretraining.yaml` and 
 ```bash
 python trainer.py --config text/configs/roberta-pretraining.yaml 
 ```
-_Want to train based on another LM encoder?_
-_Define your model in a file under `text/models` and implement your own module and don't forget to output encoder hidden/last states in the module's forward. You can figure out the right structure using the already implemented models under `text/models`._
 
 #### **Vision**
 In Progress ...
