@@ -12,7 +12,7 @@ import omegaconf
 from omegaconf import DictConfig
 from tqdm import tqdm
 
-from text.models import Roberta, RobertaTokenizer
+from text.encoder import Encoder, AutoTokenizer
 from text.dataset import WikiText
 from utils import AverageMeter
 from data2vec import Data2Vec
@@ -22,10 +22,10 @@ class Trainer:
     def __init__(self, cfg: DictConfig):
         self.cfg = cfg
         self.num_epochs = self.cfg.train.num_epochs
-        self.device = self.cfg.common.device
+        self.device = self.cfg.device
         # Model, Optim, Criterion
-        self.tokenizer = RobertaTokenizer.from_pretrained(cfg.model.encoder_checkpoint)
-        self.encoder = Roberta(cfg=cfg, vocab_size=self.tokenizer.vocab_size)
+        self.tokenizer = AutoTokenizer.from_pretrained(cfg.model.encoder_checkpoint)
+        self.encoder = Encoder(cfg=cfg)
         self.model = Data2Vec(encoder=self.encoder, cfg=cfg, mask_idx=self.tokenizer.mask_token_id)
         self.model.to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), cfg.optimizer.lr)
@@ -104,16 +104,3 @@ class Trainer:
                 save_path = os.path.join(self.cfg.train.weights_dir, f'{epoch}.pt')
                 torch.save(self.model.state_dict(), save_path)
                 print(f'Saved Model at {save_path}')
-
-
-if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, help='path to yaml config file')
-    args = parser.parse_args()
-
-    cfg_path = args.config
-
-    cfg = omegaconf.OmegaConf.load(cfg_path)
-    trainer = Trainer(cfg)
-    trainer.train()
