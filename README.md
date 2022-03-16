@@ -38,7 +38,7 @@ Train a Language Model based on RoBERTa (HuggingFace)
 
 Configure the related properties in `text/configs/roberta-pretraining.yaml` and run:
 ```bash
-python train_text.py --config text/configs/roberta-pretraining.yaml 
+python trainer.py --config text/configs/roberta-pretraining.yaml 
 ```
 _Want to train based on another LM encoder?_
 _Define your model in a file under `text/models` and implement your own module and don't forget to output encoder hidden/last states in the module's forward. You can figure out the right structure using the already implemented models under `text/models`._

@@ -1,10 +1,12 @@
-from transformers import RobertaTokenizer, RobertaModel, RobertaConfig
+from transformers import AutoModel, AutoConfig, AutoTokenizer
 import torch.nn as nn
 
 
-class Roberta(nn.Module):
+class Encoder(nn.Module):
     """
-    Roberta model using HuggingFace.
+    Encoder model using HuggingFace for NLP
+
+    To load your desired model specify model checkpoint under cfg.model.encoder_checkpoint
 
     Args:
         cfg: An omegaconf.DictConf instance containing all the configurations.
@@ -12,9 +14,11 @@ class Roberta(nn.Module):
     """
 
     def __init__(self, cfg, **kwargs):
-        super(Roberta, self).__init__()
+        super(Encoder, self).__init__()
         self.cfg = cfg
-        self.encoder = RobertaModel(RobertaConfig(**kwargs))
+        checkpoint = cfg.model.encoder_checkpoint
+        model_config = AutoConfig.from_pretrained(checkpoint)
+        self.encoder = AutoModel.from_config(model_config)
 
     def forward(self, src, **kwargs):
         """
@@ -39,8 +43,10 @@ class Roberta(nn.Module):
 
 
 if __name__ == '__main__':
-    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
-    model = Roberta(None, vocab_size=tokenizer.vocab_size)
+    from omegaconf import OmegaConf
+    cfg = OmegaConf.load('configs/roberta-pretraining.yaml')
+    tokenizer = AutoTokenizer.from_pretrained('roberta-base')
+    model = Encoder(cfg)
     inputs = tokenizer("The capital of France is <mask>.", return_tensors="pt")
     outputs = model(inputs['input_ids'])
     print(outputs)

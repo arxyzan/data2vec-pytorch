@@ -1,22 +1,24 @@
 import torch
-from transformers import Wav2Vec2Model, Wav2Vec2Config, Wav2Vec2FeatureExtractor
+from transformers import AutoModel, AutoConfig, Wav2Vec2FeatureExtractor
 import torch.nn as nn
 
 
-class Wav2Vec2(nn.Module):
+class Encoder(nn.Module):
     """
-    Wav2Vec2 model using HuggingFace.
+    Encoder model using HuggingFace for audio i.e, Wav2Vec2
 
     Args:
         cfg: An omegaconf.DictConf instance containing all the configurations.
-        **kwargs: Wav2Vec2 configs
+        **kwargs:
     """
 
     def __init__(self, cfg, **kwargs):
-        super(Wav2Vec2, self).__init__()
+        super(Encoder, self).__init__()
         self.cfg = cfg
-        self.feature_extractor = Wav2Vec2FeatureExtractor(**kwargs)
-        self.encoder = Wav2Vec2Model(Wav2Vec2Config(**kwargs))
+        checkpoint = cfg.model.encoder_checkpoint
+        model_config = AutoConfig.from_pretrained(checkpoint)
+        self.encoder = AutoModel.from_config(model_config)
+        self.feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(checkpoint)
 
     def forward(self, src, **kwargs):
         """
@@ -43,12 +45,14 @@ class Wav2Vec2(nn.Module):
 
 if __name__ == '__main__':
     from datasets import load_dataset
+    from omegaconf import OmegaConf
 
+    cfg = OmegaConf.load('configs/wav2vec2-pretraining.yaml')
     dataset = load_dataset("hf-internal-testing/librispeech_asr_demo", "clean", split="validation")
     dataset = dataset.sort("id")
     sample = dataset[0]['audio']['array']
 
-    model = Wav2Vec2(None)
+    model = Encoder(cfg)
 
     features = model(sample)
     print(features)

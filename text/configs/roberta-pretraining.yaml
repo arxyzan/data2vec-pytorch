@@ -1,6 +1,5 @@
 modality: 'text'
-common:
-  device: 'cuda'
+device: 'cuda'
 train:
   batch_size: 32
   num_epochs: 20

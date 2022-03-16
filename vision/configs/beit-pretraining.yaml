@@ -1,1 +1,3 @@
-
+modality: 'vision'
+model:
+  encoder_checkpoint: 'microsoft/beit-base-patch16-224-pt22k'

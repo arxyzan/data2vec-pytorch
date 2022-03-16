@@ -1,21 +1,23 @@
 import torch
-from transformers import BeitFeatureExtractor, BeitModel, BeitConfig
+from transformers import AutoModel, AutoConfig
 import torch.nn as nn
 
 
-class BEiT(nn.Module):
+class Encoder(nn.Module):
     """
-    BEiT model using HuggingFace Transformers
+    Encoder model using HuggingFace Transformers for vision e.g, BeiT
 
     Args:
         cfg: An omegaconf.DictConf instance containing all the configurations.
-        **kwargs: BEiT configs
+        **kwargs:
     """
 
     def __init__(self, cfg, **kwargs):
-        super(BEiT, self).__init__()
+        super(Encoder, self).__init__()
         self.cfg = cfg
-        self.encoder = BeitModel(BeitConfig(**kwargs))
+        checkpoint = cfg.model.encoder_checkpoint
+        model_config = AutoConfig.from_pretrained(checkpoint)
+        self.encoder = AutoModel.from_config(model_config)
 
     def forward(self, src, **kwargs):
         """
@@ -40,13 +42,14 @@ class BEiT(nn.Module):
 
 
 if __name__ == '__main__':
+    from omegaconf import OmegaConf
     import numpy as np
     from PIL import Image
     import requests
     from torchvision import transforms as T
 
-    model = BEiT(cfg=None)
-    tokenizer = BEiT(BeitConfig)
+    cfg = OmegaConf.load('configs/beit-pretraining.yaml')
+    model = Encoder(cfg)
     url = "http://images.cocodataset.org/val2017/000000039769.jpg"
     image = Image.open(requests.get(url, stream=True).raw)
     image = T.Compose([T.Resize((224, 224)),
