@@ -1,8 +1,8 @@
 import omegaconf
 
-from text.trainer import Trainer as TextTrainer
-from vision.trainer import Trainer as VisionTrainer
-from audio.trainer import Trainer as AudioTrainer
+from text.trainer import TextTrainer
+from vision.trainer import VisionTrainer
+from audio.trainer import AudioTrainer
 
 if __name__ == '__main__':
     import argparse

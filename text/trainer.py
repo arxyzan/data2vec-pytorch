@@ -18,7 +18,7 @@ from utils import AverageMeter
 from data2vec import Data2Vec
 
 
-class Trainer:
+class TextTrainer:
     def __init__(self, cfg: DictConfig):
         self.cfg = cfg
         self.num_epochs = self.cfg.train.num_epochs
@@ -45,8 +45,8 @@ class Trainer:
         self.loss_tracker = AverageMeter('loss')
 
     def train_step(self, batch):
-        src = batch['input_ids'].to(self.device)
-        trg = batch['labels'].to(self.device)
+        src = ...
+        trg = ...
         x, y = self.model(src, trg)
         loss = self.criterion(x.float(), y.float()).sum(dim=-1).sum().div(x.size(0))
         loss.backward()
@@ -56,8 +56,8 @@ class Trainer:
         return loss.item()
 
     def test_step(self, batch):
-        src = batch['input_ids'].to(self.device)
-        trg = batch['labels'].to(self.device)
+        src = ...
+        trg = ...
         x, y = self.model(src, trg)
         loss = self.criterion(x, y)
 

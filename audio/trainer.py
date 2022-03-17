@@ -1,2 +1,2 @@
-class Trainer:
+class AudioTrainer:
     ...
