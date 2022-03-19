@@ -1,3 +1,41 @@
 modality: 'vision'
+device: 'cuda'
 model:
   encoder_checkpoint: 'microsoft/beit-base-patch16-224-pt22k'
+  vae_checkpoint: 'vision/encoder.pkl'
+  embed_dim: 768
+  vocab_size: 8192
+  average_top_k_layers: 10
+  head_layers: 2
+  num_classes: null
+  log_dir: 'vision/logs/beit-pretrain'
+  normalize_targets: false
+  ema_decay: 0.999
+  ema_end_decay: 0.9999
+  ema_anneal_end_step: 300000
+dataset:
+  path: 'vision/dummy_data'
+  input_size: 224
+  train_interpolation: 'bicubic'
+  patch_size: 16
+  window_size: 14
+  num_mask_patches: 75
+  max_mask_patches_per_block: null
+  min_mask_patches_per_block: 16
+  imagenet_default_mean_and_std: false
+  mask_token_id: 8192
+  pad_token_id: 1
+train:
+  num_epochs: 800
+  batch_size: 4
+  shuffle: true
+  save_ckpt_freq: 20
+  weights_dir: 'vision/weights/beit-pretrain'
+criterion:
+  loss_beta: 4
+optimizer:
+  lr: 0.0001
+
+
+
+

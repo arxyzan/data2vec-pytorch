@@ -43,7 +43,7 @@ class Data2Vec(nn.Module):
         if self.ema.decay < 1:
             self.ema.step(self.encoder.encoder)
 
-    def forward(self, src, trg=None):
+    def forward(self, src, trg=None, **kwargs):
         """
         Encode inputs and pass to encoder. Apply classification head if trg is not given
 
@@ -54,7 +54,7 @@ class Data2Vec(nn.Module):
         Returns:
             Either encoder outputs or classification outputs
         """
-        encoder_output = self.encoder(src, trg)
+        encoder_output = self.encoder(src, trg, **kwargs)
         if trg is None:
             classification_output = self.classification_head(encoder_output)
             return classification_output
@@ -104,8 +104,10 @@ class Data2VecEncoder(nn.Module):
 
         if self.modality == 'audio':
             return nn.Linear(self.embed_dim, self.embed_dim)
+        if self.modality == 'vision':
+            return nn.Linear(self.embed_dim, self.encoder.vocab_size)
 
-    def forward(self, src, trg=None):
+    def forward(self, src, trg=None, **kwargs):
         """
         Forward method has two modes:
             `training`: Encoder predicts representations using masked inputs (src) and the teacher (Encoder EMA)

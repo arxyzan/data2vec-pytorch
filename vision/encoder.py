@@ -18,6 +18,7 @@ class Encoder(nn.Module):
         checkpoint = cfg.model.encoder_checkpoint
         model_config = AutoConfig.from_pretrained(checkpoint)
         self.encoder = AutoModel.from_config(model_config)
+        self.vocab_size = model_config.vocab_size
 
     def forward(self, src, **kwargs):
         """

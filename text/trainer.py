@@ -99,7 +99,7 @@ class TextTrainer:
             self.tensorboard.add_scalar('train_loss', train_loss, epoch)
             self.tensorboard.add_scalar('val_loss', val_loss, epoch)
 
-            should_save_weights = lambda x: not bool(x % self.cfg.train.save_interval)
+            should_save_weights = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
             if should_save_weights(epoch):
                 save_path = os.path.join(self.cfg.train.weights_dir, f'{epoch}.pt')
                 torch.save(self.model.state_dict(), save_path)

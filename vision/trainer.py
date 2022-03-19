@@ -6,10 +6,11 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
+import dall_e
 
-from encoder import Encoder
+from vision.encoder import Encoder
+from vision.dataset import BEiTPretrainingDataset
 from data2vec import Data2Vec
-from dataset import build_beit_pretraining_dataset
 from utils import AverageMeter
 
 
@@ -19,16 +20,17 @@ class VisionTrainer:
         self.device = cfg.device
         self.num_epochs = cfg.train.num_epochs
         # Model, Criterion, Optimizer
+        self.d_vae = dall_e.load_model(cfg.model.vae_checkpoint)
         self.encoder = Encoder(cfg=cfg)
-        self.model = Data2Vec(encoder=self.encoder, cfg=cfg, mask_idx=self.tokenizer.mask_token_id)
+        self.model = Data2Vec(encoder=self.encoder, cfg=cfg)
         self.model.to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), cfg.optimizer.lr)
         self.criterion = nn.SmoothL1Loss(reduction='none', beta=cfg.criterion.loss_beta)
         self.criterion.to(self.device)
         # Datasets & Data Loaders
-        self.train_dataset, self.valid_dataset = build_beit_pretraining_dataset(cfg)
-        self.train_loader = DataLoader(self.train_dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
-        self.valid_loader = DataLoader(self.valid_dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
+        self.dataset = BEiTPretrainingDataset(cfg, vae=self.d_vae)
+        self.train_loader = DataLoader(self.dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
+        self.valid_loader = DataLoader(self.dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
 
         # Tensorboard
         self.tensorboard = SummaryWriter(log_dir=self.cfg.model.log_dir)
@@ -91,7 +93,7 @@ class VisionTrainer:
             self.tensorboard.add_scalar('train_loss', train_loss, epoch)
             self.tensorboard.add_scalar('val_loss', val_loss, epoch)
 
-            should_save_weights = lambda x: not bool(x % self.cfg.train.save_interval)
+            should_save_weights = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
             if should_save_weights(epoch):
                 save_path = os.path.join(self.cfg.train.weights_dir, f'{epoch}.pt')
                 torch.save(self.model.state_dict(), save_path)
