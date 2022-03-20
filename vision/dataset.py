@@ -16,6 +16,7 @@ class BEiTPretrainingDataset(ImageFolder):
         self.__dict__.update(kwargs)
 
     def __getitem__(self, index):
+        # TODO figure out how the source and target must be constructed
         path, target = self.samples[index]
         image = self.loader(path)
         image, image_for_vae, bool_masked_pos = self.transform(image)
@@ -25,7 +26,7 @@ class BEiTPretrainingDataset(ImageFolder):
             masked_src = torch.masked_fill(image, mask, -1)
             visual_tokens = self.d_vae(image_for_vae.unsqueeze(0)).argmax(1)
             unmasked_trg = torch.masked_fill(visual_tokens, ~bool_masked_pos.bool(), self.pad_token_id)
-        return masked_src.flatten(), unmasked_trg.flatten()
+        return masked_src.reshape(3, 224, 224), unmasked_trg.flatten()
 
 
 if __name__ == '__main__':
@@ -37,6 +38,7 @@ if __name__ == '__main__':
     model = BeitModel(BeitConfig())
     d_vae = load_model('encoder.pkl')
     cfg = OmegaConf.load('configs/beit-pretraining.yaml')
+    cfg.dataset.path = 'dummy_data'
     dataset = BEiTPretrainingDataset(cfg, d_vae, mask_token_id=8192)
     loader = DataLoader(dataset, batch_size=4)
     src, trg = next(iter(loader))
