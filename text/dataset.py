@@ -7,6 +7,11 @@ from tqdm import tqdm
 class WikiText(Dataset):
     """
     A Dataset instance for WikiText dataset loaded from HuggingFace datasets.
+
+    Args:
+        cfg (DictConfig): config object
+        split: Split to load ['train', 'test']
+        tokenizer: A HuggingFace Tokenizer model like BPE
     """
 
     def __init__(self, cfg, split, tokenizer):

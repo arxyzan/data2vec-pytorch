@@ -8,7 +8,6 @@ from torch.utils.data import DataLoader
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
-import omegaconf
 from omegaconf import DictConfig
 from tqdm import tqdm
 
@@ -19,6 +18,13 @@ from data2vec import Data2Vec
 
 
 class TextTrainer:
+    """
+    A Trainer class to train NLP model on Data2Vec.
+
+    Args:
+        cfg (DictConfig): the config object containing all properties
+    """
+
     def __init__(self, cfg: DictConfig):
         self.cfg = cfg
         self.num_epochs = self.cfg.train.num_epochs
@@ -45,6 +51,15 @@ class TextTrainer:
         self.loss_tracker = AverageMeter('loss')
 
     def train_step(self, batch):
+        """
+        Train one batch of data and return loss.
+
+        Args:
+            batch: A batch of data with shape [batch_size, seq_len]
+
+        Returns:
+            Loss value
+        """
         src = batch['input_ids'].to(self.device)
         trg = batch['labels'].to(self.device)
         x, y = self.model(src, trg)
@@ -56,6 +71,15 @@ class TextTrainer:
         return loss.item()
 
     def test_step(self, batch):
+        """
+        Test a model on one batch of data and return loss.
+
+        Args:
+            batch: A batch of data with shape [batch_size, seq_len]
+
+        Returns:
+            Loss value
+        """
         src = batch['input_ids'].to(self.device)
         trg = batch['labels'].to(self.device)
         x, y = self.model(src, trg)
@@ -64,6 +88,15 @@ class TextTrainer:
         return loss.item()
 
     def train_epoch(self, epoch_num):
+        """
+        Train the model for one epoch and verbose using the progress bar.
+
+        Args:
+            epoch_num: number of the current epoch
+
+        Returns:
+            The average loss through the whole epoch
+        """
         self.model.train()
         self.loss_tracker.reset()
         with tqdm(self.train_loader, unit="batch", desc=f'Epoch: {epoch_num}/{self.num_epochs} ',
@@ -77,6 +110,12 @@ class TextTrainer:
         return avg_loss
 
     def evaluate(self):
+        """
+        Evaluate the model on the test set
+
+        Returns:
+            The average loss through the whole test dataset
+        """
         self.model.eval()
         self.loss_tracker.reset()
         with tqdm(self.valid_loader, unit="batch", desc=f'Evaluating... ',
@@ -90,6 +129,10 @@ class TextTrainer:
         return avg_loss
 
     def train(self):
+        """
+        Train and evaluate the model on the datasets and save checkpoints and write summaries to TensorBoard.
+
+        """
         for epoch in range(1, self.num_epochs + 1):
             print()
             train_loss = self.train_epoch(epoch)
