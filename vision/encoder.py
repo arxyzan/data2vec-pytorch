@@ -19,6 +19,7 @@ class Encoder(nn.Module):
         model_config = AutoConfig.from_pretrained(checkpoint)
         self.encoder = AutoModel.from_config(model_config)
         self.vocab_size = model_config.vocab_size
+        self.mask_token = self.encoder.embeddings.mask_token
 
     def forward(self, src, **kwargs):
         """
@@ -39,6 +40,7 @@ class Encoder(nn.Module):
         # remove cls token from outputs
         encoder_states = [output[:, 1:, :] for output in encoder_states]
         encoder_out = encoder_out[:, 1:, :]
+        attentions = [output[:, 1:, 1:] for output in attentions]
 
         return {
             'encoder_states': encoder_states,

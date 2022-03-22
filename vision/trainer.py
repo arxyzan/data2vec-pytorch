@@ -39,9 +39,12 @@ class VisionTrainer:
         self.loss_tracker = AverageMeter('loss')
 
     def train_step(self, batch):
-        src = ...
-        trg = ...
-        x, y = self.model(src, trg)
+        src, trg, mask = batch
+        src = src.to(self.device)
+        trg = trg.to(self.device)
+        mask = mask.to(self.device)
+
+        x, y = self.model(src, trg, mask)
         loss = self.criterion(x.float(), y.float()).sum(dim=-1).sum().div(x.size(0))
         loss.backward()
         self.optimizer.step()
@@ -50,9 +53,12 @@ class VisionTrainer:
         return loss.item()
 
     def test_step(self, batch):
-        src = ...
-        trg = ...
-        x, y = self.model(src, trg)
+        src, trg, mask = batch
+        src = src.to(self.device)
+        trg = trg.to(self.device)
+        mask = mask.to(self.device)
+
+        x, y = self.model(src, trg, mask)
         loss = self.criterion(x, y)
 
         return loss.item()

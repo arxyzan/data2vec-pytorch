@@ -23,8 +23,6 @@ dataset:
   max_mask_patches_per_block: null
   min_mask_patches_per_block: 16
   imagenet_default_mean_and_std: false
-  mask_token_id: 8192
-  pad_token_id: 1
 train:
   num_epochs: 800
   batch_size: 4

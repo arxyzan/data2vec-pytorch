@@ -25,6 +25,9 @@ class Data2Vec(nn.Module):
         self.ema_anneal_end_step = self.cfg.model.ema_anneal_end_step
 
         # Only create classification head for fine-tuning (num_classes must be present in cfg.model)
+        # Note: There's no need to finetune a model using this module. just load the main encoder checkpoint being
+        # Data2Vec.encoder.encoder which is a regular Transformer Encoder model and train it as you would normally train
+        # such model for a downstream task.
         if cfg.model.num_classes is not None:
             self.classification_head = nn.Linear(cfg.model.embed_dim, cfg.model.num_classes)
 
@@ -43,18 +46,19 @@ class Data2Vec(nn.Module):
         if self.ema.decay < 1:
             self.ema.step(self.encoder.encoder)
 
-    def forward(self, src, trg=None, **kwargs):
+    def forward(self, src, trg=None, mask=None, **kwargs):
         """
         Encode inputs and pass to encoder. Apply classification head if trg is not given
 
         Args:
             src: source tokens
             trg: target tokens. if provided it means the model is in training mode
+            mask: bool masked indices
 
         Returns:
             Either encoder outputs or classification outputs
         """
-        encoder_output = self.encoder(src, trg, **kwargs)
+        encoder_output = self.encoder(src, trg, mask, **kwargs)
         if trg is None:
             classification_output = self.classification_head(encoder_output)
             return classification_output
@@ -107,7 +111,7 @@ class Data2VecEncoder(nn.Module):
         if self.modality == 'vision':
             return nn.Linear(self.embed_dim, self.encoder.vocab_size)
 
-    def forward(self, src, trg=None, **kwargs):
+    def forward(self, src, trg=None, mask=None, **kwargs):
         """
         Forward method has two modes:
             `training`: Encoder predicts representations using masked inputs (src) and the teacher (Encoder EMA)
@@ -118,6 +122,7 @@ class Data2VecEncoder(nn.Module):
         Args:
             src: src tokens (masked inputs for training)
             trg: trg tokens (unmasked inputs for training but left as `None` otherwise)
+            mask: bool masked indices
 
         Returns:
             Either encoder outputs or a tuple of encoder + EMA outputs
@@ -147,9 +152,8 @@ class Data2VecEncoder(nn.Module):
                 if self.cfg.normalize_targets:
                     y = F.instance_norm(y.transpose(1, 2)).transpose(1, 2)
 
-        masked_indices = src.eq(self.mask_idx)
-        x = x[masked_indices]
-        y = y[masked_indices]
+        x = x[mask]
+        y = y[mask]
 
         x = self.regression_head(x)
 

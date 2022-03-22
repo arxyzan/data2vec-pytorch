@@ -32,7 +32,7 @@ class TextTrainer:
         # Model, Optim, Criterion
         self.tokenizer = AutoTokenizer.from_pretrained(cfg.model.encoder_checkpoint)
         self.encoder = Encoder(cfg=cfg)
-        self.model = Data2Vec(encoder=self.encoder, cfg=cfg, mask_idx=self.tokenizer.mask_token_id)
+        self.model = Data2Vec(encoder=self.encoder, cfg=cfg)
         self.model.to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), cfg.optimizer.lr)
         self.criterion = nn.SmoothL1Loss(reduction='none', beta=cfg.criterion.loss_beta)
@@ -62,7 +62,8 @@ class TextTrainer:
         """
         src = batch['input_ids'].to(self.device)
         trg = batch['labels'].to(self.device)
-        x, y = self.model(src, trg)
+        mask = batch['masked_indices'].to(self.device)
+        x, y = self.model(src, trg, mask)
         loss = self.criterion(x.float(), y.float()).sum(dim=-1).sum().div(x.size(0))
         loss.backward()
         self.optimizer.step()
@@ -82,7 +83,8 @@ class TextTrainer:
         """
         src = batch['input_ids'].to(self.device)
         trg = batch['labels'].to(self.device)
-        x, y = self.model(src, trg)
+        mask = batch['masked_indices'].to(self.device)
+        x, y = self.model(src, trg, mask=mask)
         loss = self.criterion(x, y)
 
         return loss.item()

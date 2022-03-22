@@ -50,7 +50,7 @@ class WikiText(Dataset):
             tokenized outputs
         """
         raw_text = self.data[index]['text']
-        tokens = self.tokenizer(raw_text)
+        tokens = self.tokenizer(raw_text, return_attention_mask=False)
         return tokens
 
     def _mask_tokens(self, inputs, special_tokens_mask=None):
@@ -90,7 +90,7 @@ class WikiText(Dataset):
         inputs[indices_random] = random_words[indices_random]
 
         # The rest of the time (10% of the time) we keep the masked input tokens unchanged
-        return inputs, labels
+        return inputs, labels, masked_indices
 
     def collate_fn(self, batch):
         """
@@ -104,10 +104,9 @@ class WikiText(Dataset):
         """
 
         batch = self.tokenizer.pad(batch, return_tensors="pt")
-
         # If special token mask has been preprocessed, pop it from the dict.
         special_tokens_mask = batch.pop("special_tokens_mask", None)
-        batch["input_ids"], batch["labels"] = self._mask_tokens(
+        batch["input_ids"], batch["labels"], batch['masked_indices'] = self._mask_tokens(
             batch["input_ids"], special_tokens_mask=special_tokens_mask
         )
         return batch
