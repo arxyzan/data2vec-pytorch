@@ -32,6 +32,8 @@ The key concept is that there must be modality-specific feature extractions and 
 The encoder models (an `encoder.py` for each modality) are wrappers around HuggingFace Transformers models, but it's possible to use your own encoders 
 and provide the above methods in them. Just make sure that your encoders must be Transformer-based according to the paper and outputs from every encoder layer must be provided.
 
+**Note**: This implementation's goal is to provide the necessary building blocks of Data2Vec so anyone can adapt it to their own use case with ease, so in order to make it easy to get hands on, some functionalities like mixed precision, distributed training, etc are not included to keep it as clean & simple as possible. If you need to just train a standard Data2Vec model use the [official repo](https://github.com/pytorch/fairseq/tree/main/examples/data2vec).
+
 ## Train
 #### **NLP**
 Train a Language Model based on RoBERTa (HuggingFace)
