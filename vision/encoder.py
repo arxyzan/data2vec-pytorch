@@ -35,6 +35,11 @@ class Encoder(nn.Module):
         encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately
         encoder_out = outputs['hidden_states'][-1]  # last encoder output (accumulated)
         attentions = outputs['attentions']
+
+        # remove cls token from outputs
+        encoder_states = [output[:, 1:, :] for output in encoder_states]
+        encoder_out = encoder_out[:, 1:, :]
+
         return {
             'encoder_states': encoder_states,
             'encoder_out': encoder_out,
