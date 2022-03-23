@@ -106,10 +106,8 @@ class Data2VecEncoder(nn.Module):
             projs.append(nn.Linear(curr_dim, embed_dim))
             return nn.Sequential(*projs)
 
-        if self.modality == 'audio':
+        if self.modality in ['audio', 'vision']:
             return nn.Linear(self.embed_dim, self.embed_dim)
-        if self.modality == 'vision':
-            return nn.Linear(self.embed_dim, self.encoder.vocab_size)
 
     def forward(self, src, trg=None, mask=None, **kwargs):
         """

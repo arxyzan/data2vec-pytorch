@@ -20,7 +20,6 @@ class VisionTrainer:
         self.device = cfg.device
         self.num_epochs = cfg.train.num_epochs
         # Model, Criterion, Optimizer
-        self.d_vae = dall_e.load_model(cfg.model.vae_checkpoint)
         self.encoder = Encoder(cfg=cfg)
         self.model = Data2Vec(encoder=self.encoder, cfg=cfg)
         self.model.to(self.device)
@@ -28,7 +27,7 @@ class VisionTrainer:
         self.criterion = nn.SmoothL1Loss(reduction='none', beta=cfg.criterion.loss_beta)
         self.criterion.to(self.device)
         # Datasets & Data Loaders
-        self.dataset = BEiTPretrainingDataset(cfg, vae=self.d_vae)
+        self.dataset = BEiTPretrainingDataset(cfg)
         self.train_loader = DataLoader(self.dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
         self.valid_loader = DataLoader(self.dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
 
