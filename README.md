@@ -35,6 +35,8 @@ and provide the above methods in them. Just make sure that your encoders must be
 **Note**: This implementation's goal is to provide the necessary building blocks of Data2Vec so anyone can adapt it to their own use case with ease, so in order to make it easy to get hands on, some functionalities like mixed precision, distributed training, etc are not included to keep it as clean & simple as possible. If you need to just train a standard Data2Vec model use the [official repo](https://github.com/pytorch/fairseq/tree/main/examples/data2vec).
 
 ## Train
+**Note**: As mentioned above, pre-training a full model using this code base is not practical unless you provide your own large scale training methods like distributed training, mixed precision, etc. If you managed to implement those procedures, send a PR ;)
+
 #### **NLP**
 Train a Language Model based on RoBERTa (HuggingFace)
 
@@ -50,7 +52,19 @@ In Progress ...
 In Progress ...
 
 ## Fine-tuning
-In Progress ...
+A data2vec model consists of an encoder and regression layers on top. To fine-tune any model pretrained using Data2Vec, you can just take the main encoder from the saved checkpoint and fine-tune it as you would fine-tune a regular model.
+```python
+# load a checkpoint for finetuning
+from transformers import RobertaModel, RobertaConfig
+roberta = RobertaModel(RobertaConfig)
+checkpoint = torch.load('saved_checkpoint.pt')
+roberta_state_dict = checkpoint['encoder']['encoder']
+# load roberta weights from the encoder part of the data2vec model
+encoder = roberta.load_state_dict(roberta_state_dict)
+
+# Now fine-tune a regular HuggingFace RoBERTa model as usual
+...
+```
 
 
 ## Contributions
