@@ -12,76 +12,10 @@ class Data2Vec(nn.Module):
          encoder (nn.Module)
          cfg (omegaconf.DictConfig)
     """
+    MODALITIES = ['vision', 'text', 'audio']
 
     def __init__(self, encoder, cfg, **kwargs):
         super(Data2Vec, self).__init__()
-        self.__dict__.update(kwargs)
-        self.encoder = Data2VecEncoder(encoder, cfg, **kwargs)
-
-        self.cfg = cfg
-        self.ema = self.encoder.teacher
-        self.ema_decay = self.cfg.model.ema_decay
-        self.ema_end_decay = self.cfg.model.ema_end_decay
-        self.ema_anneal_end_step = self.cfg.model.ema_anneal_end_step
-
-        # Only create classification head for fine-tuning (num_classes must be present in cfg.model)
-        # Note: There's no need to finetune a model using this module. just load the main encoder checkpoint being
-        # Data2Vec.encoder.encoder which is a regular Transformer Encoder model and train it as you would normally train
-        # such model for a downstream task.
-        if cfg.model.num_classes is not None:
-            self.classification_head = nn.Linear(cfg.model.embed_dim, cfg.model.num_classes)
-
-    def ema_step(self):
-        if self.ema_decay != self.ema_end_decay:
-            if self.ema.num_updates >= self.ema_anneal_end_step:
-                decay = self.ema_end_decay
-            else:
-                decay = self.encoder.teacher.get_annealed_rate(
-                    self.ema_decay,
-                    self.ema_end_decay,
-                    self.ema.num_updates,
-                    self.ema_anneal_end_step,
-                )
-            self.ema.decay = decay
-        if self.ema.decay < 1:
-            self.ema.step(self.encoder.encoder)
-
-    def forward(self, src, trg=None, mask=None, **kwargs):
-        """
-        Encode inputs and pass to encoder. Apply classification head if trg is not given
-
-        Args:
-            src: source tokens
-            trg: target tokens. if provided it means the model is in training mode
-            mask: bool masked indices
-
-        Returns:
-            Either encoder outputs or classification outputs
-        """
-        encoder_output = self.encoder(src, trg, mask, **kwargs)
-        if trg is None:
-            classification_output = self.classification_head(encoder_output)
-            return classification_output
-        else:
-            return encoder_output
-
-
-class Data2VecEncoder(nn.Module):
-    """
-    Encoder block of Data2Vec.
-
-    This module consists of two parts; the encoder (student) and the EMA of encoder (teacher) which is only used in
-    training. The encoder has to predict the representations of the masked inputs which are to be compared to the
-    outputs from the EMA who predicts the representations of the unmasked inputs.
-
-    Args:
-        encoder (nn.Module): The encoder module that extracts transformer outputs
-        cfg (omegaconf.DictConfig)
-    """
-    MODALITIES = ['vision', 'text', 'audio']
-
-    def __init__(self, encoder: nn.Module, cfg, **kwargs):
-        super(Data2VecEncoder, self).__init__()
         self.modality = cfg.modality
         self.embed_dim = cfg.model.embed_dim
         assert cfg.modality in self.MODALITIES
@@ -89,8 +23,13 @@ class Data2VecEncoder(nn.Module):
         self.__dict__.update(kwargs)
 
         self.cfg = cfg
-        self.teacher = EMA(self.encoder, cfg)
-        self.regression_head = self._build_regression_head()  # custom layers for projection
+        self.ema = EMA(self.encoder, cfg)  # EMA acts as the teacher
+        self.regression_head = self._build_regression_head()
+
+        self.cfg = cfg
+        self.ema_decay = self.cfg.model.ema_decay
+        self.ema_end_decay = self.cfg.model.ema_end_decay
+        self.ema_anneal_end_step = self.cfg.model.ema_anneal_end_step
 
     def _build_regression_head(self):
         if self.modality == 'text':
@@ -108,6 +47,21 @@ class Data2VecEncoder(nn.Module):
 
         if self.modality in ['audio', 'vision']:
             return nn.Linear(self.embed_dim, self.embed_dim)
+
+    def ema_step(self):
+        if self.ema_decay != self.ema_end_decay:
+            if self.ema.num_updates >= self.ema_anneal_end_step:
+                decay = self.ema_end_decay
+            else:
+                decay = self.ema.get_annealed_rate(
+                    self.ema_decay,
+                    self.ema_end_decay,
+                    self.ema.num_updates,
+                    self.ema_anneal_end_step,
+                )
+            self.ema.decay = decay
+        if self.ema.decay < 1:
+            self.ema.step(self.encoder)
 
     def forward(self, src, trg=None, mask=None, **kwargs):
         """
@@ -131,9 +85,9 @@ class Data2VecEncoder(nn.Module):
             return x
 
         with torch.no_grad():
-            self.teacher.model.eval()
+            self.ema.model.eval()
 
-            y = self.teacher.model(trg)['encoder_states']
+            y = self.ema.model(trg)['encoder_states']
             y = y[-self.cfg.model.average_top_k_layers:]
 
             if self.modality in ['vision', 'text']:  # Follow the same layer normalization procedure for text and vision
