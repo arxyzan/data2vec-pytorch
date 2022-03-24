@@ -46,7 +46,12 @@ python trainer.py --config text/configs/roberta-pretraining.yaml
 ```
 
 #### **Vision**
-In Progress ...
+Run a Masked Image modeling training based on BEiT (HuggingFace)
+
+Configure the related properties in `vision/configs/beit-pretraining.yaml` and run:
+```bash
+python trainer.py --config vision/configs/beit-pretraining.yaml 
+```
 
 #### **Speech**
 In Progress ...
@@ -57,8 +62,8 @@ A data2vec model consists of an encoder and regression layers on top. To fine-tu
 # load a checkpoint for finetuning
 from transformers import RobertaModel, RobertaConfig
 roberta = RobertaModel(RobertaConfig)
-checkpoint = torch.load('saved_checkpoint.pt')
-roberta_state_dict = checkpoint['encoder']['encoder']
+checkpoint = torch.load('roberta_data2vec.pt')
+roberta_state_dict = checkpoint['encoder']
 # load roberta weights from the encoder part of the data2vec model
 encoder = roberta.load_state_dict(roberta_state_dict)
 
