@@ -42,7 +42,7 @@ Train a Language Model based on RoBERTa (HuggingFace)
 
 Configure the related properties in `text/configs/roberta-pretraining.yaml` and run:
 ```bash
-python trainer.py --config text/configs/roberta-pretraining.yaml 
+python train.py --config text/configs/roberta-pretraining.yaml 
 ```
 
 #### **Vision**
@@ -50,7 +50,7 @@ Run a Masked Image modeling training based on BEiT (HuggingFace)
 
 Configure the related properties in `vision/configs/beit-pretraining.yaml` and run:
 ```bash
-python trainer.py --config vision/configs/beit-pretraining.yaml 
+python train.py --config vision/configs/beit-pretraining.yaml 
 ```
 
 #### **Speech**
