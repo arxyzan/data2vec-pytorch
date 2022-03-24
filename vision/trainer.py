@@ -9,7 +9,7 @@ from tqdm import tqdm
 import dall_e
 
 from vision.encoder import Encoder
-from vision.dataset import BEiTPretrainingDataset
+from vision.dataset import MIMPretrainingDataset
 from data2vec import Data2Vec
 from utils import AverageMeter
 
@@ -27,7 +27,7 @@ class VisionTrainer:
         self.criterion = nn.SmoothL1Loss(reduction='none', beta=cfg.criterion.loss_beta)
         self.criterion.to(self.device)
         # Datasets & Data Loaders
-        self.dataset = BEiTPretrainingDataset(cfg)
+        self.dataset = MIMPretrainingDataset(cfg)
         self.train_loader = DataLoader(self.dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
         self.valid_loader = DataLoader(self.dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
 
@@ -58,7 +58,7 @@ class VisionTrainer:
         mask = mask.to(self.device)
 
         x, y = self.model(src, trg, mask)
-        loss = self.criterion(x, y)
+        loss = self.criterion(x.float(), y.float()).sum(dim=-1).sum().div(x.size(0))
 
         return loss.item()
 
