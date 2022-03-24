@@ -1,5 +1,5 @@
 modality: 'vision'
-device: 'cpu'
+device: 'cuda'
 model:
   encoder_checkpoint: 'microsoft/beit-base-patch16-224-pt22k'
   embed_dim: 768
@@ -23,7 +23,7 @@ dataset:
   imagenet_default_mean_and_std: false
 train:
   num_epochs: 800
-  batch_size: 4
+  batch_size: 16
   shuffle: true
   save_ckpt_freq: 20
   weights_dir: 'vision/weights/beit-pretrain'
