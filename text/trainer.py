@@ -39,11 +39,11 @@ class TextTrainer:
         self.criterion.to(self.device)
         # Datasets & Data Loaders
         self.train_dataset = WikiText(cfg, 'train', self.tokenizer)
-        self.valid_dataset = WikiText(cfg, 'test', self.tokenizer)
+        self.test_dataset = WikiText(cfg, 'test', self.tokenizer)
         self.train_loader = DataLoader(self.train_dataset, batch_size=cfg.train.batch_size,
                                        collate_fn=self.train_dataset.collate_fn)
-        self.valid_loader = DataLoader(self.valid_dataset, batch_size=cfg.train.val_batch_size,
-                                       collate_fn=self.valid_dataset.collate_fn)
+        self.test_loader = DataLoader(self.test_dataset, batch_size=cfg.train.val_batch_size,
+                                      collate_fn=self.test_dataset.collate_fn)
         # Tensorboard
         self.tensorboard = SummaryWriter(log_dir=self.cfg.model.log_dir)
 
@@ -123,7 +123,7 @@ class TextTrainer:
         """
         self.model.eval()
         self.loss_tracker.reset()
-        with tqdm(self.valid_loader, unit="batch", desc=f'Evaluating... ',
+        with tqdm(self.test_loader, unit="batch", desc=f'Evaluating... ',
                   bar_format='{desc:<16}{percentage:3.0f}%|{bar:70}{r_bar}', ascii=" #") as iterator:
             with torch.no_grad():
                 for batch in iterator:
