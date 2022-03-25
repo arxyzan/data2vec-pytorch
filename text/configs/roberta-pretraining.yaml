@@ -3,7 +3,7 @@ device: 'cuda'
 train:
   batch_size: 32
   num_epochs: 20
-  weights_dir: 'text/weights/roberta-pretrain'
+  checkpoints_dir: 'text/checkpoints/roberta-pretrain'
 criterion:
   loss_beta: 4
 optimizer:

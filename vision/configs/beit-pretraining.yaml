@@ -26,7 +26,7 @@ train:
   batch_size: 16
   shuffle: true
   save_ckpt_freq: 20
-  weights_dir: 'vision/weights/beit-pretrain'
+  checkpoints_dir: 'vision/checkpoints/beit-pretrain'
 criterion:
   loss_beta: 4
 optimizer:

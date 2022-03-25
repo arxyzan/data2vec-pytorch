@@ -13,8 +13,8 @@ from tqdm import tqdm
 
 from text.encoder import Encoder, AutoTokenizer
 from text.dataset import WikiText
-from utils import AverageMeter
 from data2vec import Data2Vec
+from utils import AverageMeter, save_checkpoint
 
 
 class TextTrainer:
@@ -55,7 +55,7 @@ class TextTrainer:
         Train one batch of data and return loss.
 
         Args:
-            batch: A batch of data with shape [batch_size, seq_len]
+            batch: A batch of data, inputs, labels and mask with shape [batch_size, seq_len]
 
         Returns:
             Loss value
@@ -63,6 +63,7 @@ class TextTrainer:
         src = batch['input_ids'].to(self.device)
         trg = batch['labels'].to(self.device)
         mask = batch['masked_indices'].to(self.device)
+
         x, y = self.model(src, trg, mask)
         loss = self.criterion(x.float(), y.float()).sum(dim=-1).sum().div(x.size(0))
         loss.backward()
@@ -76,7 +77,7 @@ class TextTrainer:
         Test a model on one batch of data and return loss.
 
         Args:
-            batch: A batch of data with shape [batch_size, seq_len]
+            batch: A batch of data, inputs, labels and mask with shape [batch_size, seq_len]
 
         Returns:
             Loss value
@@ -84,6 +85,7 @@ class TextTrainer:
         src = batch['input_ids'].to(self.device)
         trg = batch['labels'].to(self.device)
         mask = batch['masked_indices'].to(self.device)
+
         x, y = self.model(src, trg, mask=mask)
         loss = self.criterion(x, y)
 
@@ -109,6 +111,7 @@ class TextTrainer:
                 self.loss_tracker.update(loss)
                 avg_loss = self.loss_tracker.avg
                 iterator.set_postfix(loss=avg_loss)
+
         return avg_loss
 
     def evaluate(self):
@@ -128,6 +131,7 @@ class TextTrainer:
                     self.loss_tracker.update(loss)
                     avg_loss = self.loss_tracker.avg
                     iterator.set_postfix(loss=avg_loss)
+
         return avg_loss
 
     def train(self):
@@ -144,8 +148,7 @@ class TextTrainer:
             self.tensorboard.add_scalar('train_loss', train_loss, epoch)
             self.tensorboard.add_scalar('val_loss', val_loss, epoch)
 
-            should_save_weights = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
-            if should_save_weights(epoch):
+            should_save_ckpt = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
+            if should_save_ckpt(epoch):
                 save_path = os.path.join(self.cfg.train.weights_dir, f'{epoch}.pt')
-                torch.save(self.model.state_dict(), save_path)
-                print(f'Saved Model at {save_path}')
+                save_checkpoint(self.model, self.optimizer, save_path)

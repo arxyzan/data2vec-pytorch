@@ -6,12 +6,11 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
-import dall_e
 
 from vision.encoder import Encoder
 from vision.dataset import MIMPretrainingDataset
 from data2vec import Data2Vec
-from utils import AverageMeter
+from utils import AverageMeter, save_checkpoint
 
 
 class VisionTrainer:
@@ -38,6 +37,14 @@ class VisionTrainer:
         self.loss_tracker = AverageMeter('loss')
 
     def train_step(self, batch):
+        """
+        Train one batch of data
+        Args:
+            batch: A batch of data, src, trg of shape [N, C, H, W] and mask of shape [N, num_total_patches]
+
+        Returns:
+            Loss value
+        """
         src, trg, mask = batch
         src = src.to(self.device)
         trg = trg.to(self.device)
@@ -52,6 +59,14 @@ class VisionTrainer:
         return loss.item()
 
     def test_step(self, batch):
+        """
+        Evaluate one batch of data
+        Args:
+            batch: A batch of data, src, trg of shape [N, C, H, W] and mask of shape [N, num_total_patches]
+
+        Returns:
+            Loss value
+        """
         src, trg, mask = batch
         src = src.to(self.device)
         trg = trg.to(self.device)
@@ -63,6 +78,14 @@ class VisionTrainer:
         return loss.item()
 
     def train_epoch(self, epoch_num):
+        """
+        Train the model for one epoch
+        Args:
+            epoch_num: number of the current epoch
+
+        Returns:
+            Average loss through the whole epoch
+        """
         self.model.train()
         self.loss_tracker.reset()
         with tqdm(self.train_loader, unit="batch", desc=f'Epoch: {epoch_num}/{self.num_epochs} ',
@@ -73,9 +96,15 @@ class VisionTrainer:
                 self.loss_tracker.update(loss)
                 avg_loss = self.loss_tracker.avg
                 iterator.set_postfix(loss=avg_loss)
+
         return avg_loss
 
     def evaluate(self):
+        """
+        Evaluate the model on the test data
+        Returns:
+            Average loss on the test set
+        """
         self.model.eval()
         self.loss_tracker.reset()
         with tqdm(self.valid_loader, unit="batch", desc=f'Evaluating... ',
@@ -86,9 +115,14 @@ class VisionTrainer:
                     self.loss_tracker.update(loss)
                     avg_loss = self.loss_tracker.avg
                     iterator.set_postfix(loss=avg_loss)
+
         return avg_loss
 
     def train(self):
+        """
+        Train and evaluate the model on the datasets and save checkpoints and write summaries to TensorBoard.
+
+        """
         for epoch in range(1, self.num_epochs + 1):
             print()
             train_loss = self.train_epoch(epoch)
@@ -98,8 +132,7 @@ class VisionTrainer:
             self.tensorboard.add_scalar('train_loss', train_loss, epoch)
             self.tensorboard.add_scalar('val_loss', val_loss, epoch)
 
-            should_save_weights = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
-            if should_save_weights(epoch):
-                save_path = os.path.join(self.cfg.train.weights_dir, f'{epoch}.pt')
-                torch.save(self.model.state_dict(), save_path)
-                print(f'Saved Model at {save_path}')
+            should_save_ckpt = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
+            if should_save_ckpt(epoch):
+                save_path = os.path.join(self.cfg.train.checkpoints_dir, f'{epoch}.pt')
+                save_checkpoint(self.model, self.optimizer, save_path)

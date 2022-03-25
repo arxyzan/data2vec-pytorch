@@ -36,6 +36,9 @@ class EMA:
         model.load_state_dict(d, strict=False)
         return model
 
+    def state_dict(self):
+        return self.model.state_dict()
+
     @staticmethod
     def get_annealed_rate(start, end, curr_step, total_steps):
         r = end - start
