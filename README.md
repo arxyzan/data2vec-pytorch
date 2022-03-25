@@ -37,7 +37,7 @@ This implementation uses HuggingFace Transformers models as encoders for Data2Ve
 **Note**: As mentioned above, pre-training a full model using this code base is not practical unless you provide your own large scale training methods like distributed training, mixed precision, etc. In case you managed to implement those strategies, send a PR ;)
 
 #### **NLP**
-Train a Language Model based on RoBERTa (HuggingFace)
+Train a Language Model based on RoBERTa (HuggingFace) on WikiText103
 
 Configure the related properties in `text/configs/roberta-pretraining.yaml` and run:
 ```bash
@@ -47,7 +47,7 @@ python train.py --config text/configs/roberta-pretraining.yaml
 #### **Vision**
 Run a Masked Image modeling training based on BEiT (HuggingFace)
 
-Configure the related properties in `vision/configs/beit-pretraining.yaml` and run:
+Pass the path to the image dataset in the config file at `vision/configs/beit-pretraining.yaml` under dataset > path > train/test and modify other properties as you desire and run the following:
 ```bash
 python train.py --config vision/configs/beit-pretraining.yaml 
 ```
