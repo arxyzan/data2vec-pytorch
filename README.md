@@ -25,17 +25,16 @@ This makes sense given the vastly different nature of the input data.</cite>
 This implementation differs in the fact that a single Data2Vec model is provided powered by a custom encoder (implemented using PyTorch + HuggingFace Transformers) and tries to unify the whole concept in a single module. 
 The key concept is that there must be modality-specific feature extractions and masking strategies.
 
-- **Masking:** Depending on the modality, masking is done in the dataset's data collator function or in the forward method of the encoder.
+- **Masking:** For each modality, the Dataset instance must return the masked source, the target and the mask tensor.
 
-- **Feature Extraction:** Features are the outputs from the transformer/attention layers. So the forward method must return outputs from all Encoder blocks of the transformer model. HuggingFace Transformers/Fairseq models return these outputs out of the box.
+- **Feature Extraction:** Features are the outputs from the transformer/attention layers. So the forward method must return outputs from all Encoder blocks of the transformer model. HuggingFace Transformers/Fairseq models return transformer layers outputs separately out of the box.
 
-The encoder models (an `encoder.py` for each modality) are wrappers around HuggingFace Transformers models, but it's possible to use your own encoders 
-and provide the above methods in them. Just make sure that your encoders must be Transformer-based according to the paper and outputs from every encoder layer must be provided.
+This implementation uses HuggingFace Transformers models as encoders for Data2Vec which you can inspect in the `encoder.py` files for each modality. Although, you can provide your own encoder model. Just make sure that your encoder must be Transformer-based according to the paper and outputs from every encoder layer must be provided.
 
-**Note**: This implementation's goal is to provide the necessary building blocks of Data2Vec so anyone can adapt it to their own use case with ease, so in order to make it easy to get hands on, some functionalities like mixed precision, distributed training, etc are not included to keep it as clean & simple as possible. If you need to just train a standard Data2Vec model use the [official repo](https://github.com/pytorch/fairseq/tree/main/examples/data2vec).
+**Note**: This implementation's goal is to provide the necessary building blocks of Data2Vec so anyone can adapt it to their own use case with ease, so in order to make it easy to get hands on, some functionalities like mixed precision, distributed training, etc are not included to keep it as clean & simple as possible. If you only need to train a standard large scale Data2Vec model use the [official repo](https://github.com/pytorch/fairseq/tree/main/examples/data2vec).
 
 ## Train
-**Note**: As mentioned above, pre-training a full model using this code base is not practical unless you provide your own large scale training methods like distributed training, mixed precision, etc. If you managed to implement those procedures, send a PR ;)
+**Note**: As mentioned above, pre-training a full model using this code base is not practical unless you provide your own large scale training methods like distributed training, mixed precision, etc. In case you managed to implement those strategies, send a PR ;)
 
 #### **NLP**
 Train a Language Model based on RoBERTa (HuggingFace)
@@ -62,7 +61,7 @@ A data2vec model consists of an encoder and regression layers on top. To fine-tu
 # load a checkpoint for finetuning
 from transformers import RobertaModel, RobertaConfig
 roberta = RobertaModel(RobertaConfig)
-checkpoint = torch.load('roberta_data2vec.pt')
+checkpoint = torch.load('path/to/data2vec.pt')
 roberta_state_dict = checkpoint['encoder']
 # load roberta weights from the encoder part of the data2vec model
 encoder = roberta.load_state_dict(roberta_state_dict)
