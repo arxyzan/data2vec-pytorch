@@ -6,8 +6,8 @@ from .transforms import MIMTransform
 
 class MIMPretrainingDataset(ImageFolder):
 
-    def __init__(self, cfg, **kwargs):
-        super(MIMPretrainingDataset, self).__init__(root=cfg.dataset.path)
+    def __init__(self, cfg, split, **kwargs):
+        super(MIMPretrainingDataset, self).__init__(root=cfg.dataset.path[split])
         self.transform = MIMTransform(cfg.dataset)
         self.input_size = cfg.dataset.input_size
         self.device = cfg.device

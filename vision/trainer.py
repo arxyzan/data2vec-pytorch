@@ -26,9 +26,10 @@ class VisionTrainer:
         self.criterion = nn.SmoothL1Loss(reduction='none', beta=cfg.criterion.loss_beta)
         self.criterion.to(self.device)
         # Datasets & Data Loaders
-        self.dataset = MIMPretrainingDataset(cfg)
-        self.train_loader = DataLoader(self.dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
-        self.valid_loader = DataLoader(self.dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
+        self.train_dataset = MIMPretrainingDataset(cfg, split='train')
+        self.test_dataset = MIMPretrainingDataset(cfg, split='test')
+        self.train_loader = DataLoader(self.train_dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
+        self.test_loader = DataLoader(self.test_dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
 
         # Tensorboard
         self.tensorboard = SummaryWriter(log_dir=self.cfg.model.log_dir)
@@ -107,7 +108,7 @@ class VisionTrainer:
         """
         self.model.eval()
         self.loss_tracker.reset()
-        with tqdm(self.valid_loader, unit="batch", desc=f'Evaluating... ',
+        with tqdm(self.test_loader, unit="batch", desc=f'Evaluating... ',
                   bar_format='{desc:<16}{percentage:3.0f}%|{bar:70}{r_bar}', ascii=" #") as iterator:
             with torch.no_grad():
                 for batch in iterator:

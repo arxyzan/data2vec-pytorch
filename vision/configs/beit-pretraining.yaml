@@ -12,7 +12,9 @@ model:
   ema_end_decay: 0.9999
   ema_anneal_end_step: 300000
 dataset:
-  path: 'vision/dummy_data'
+  path:
+    train: 'vision/dummy_data'
+    test:  'vision/dummy_data'
   input_size: 224
   interpolation: 'bicubic'
   patch_size: 16
