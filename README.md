@@ -34,7 +34,10 @@ This implementation uses HuggingFace Transformers models as encoders for Data2Ve
 **Note**: This implementation's goal is to provide the necessary building blocks of Data2Vec so anyone can adapt it to their own use case with ease, so in order to make it easy to get hands on, some functionalities like mixed precision, distributed training, etc are not included to keep it as clean & simple as possible. If you only need to train a standard large scale Data2Vec model use the [official repo](https://github.com/pytorch/fairseq/tree/main/examples/data2vec).
 
 ## Train
-**Note**: As mentioned above, pre-training a full model using this code base is not practical unless you provide your own large scale training methods like distributed training, mixed precision, etc. In case you managed to implement those strategies, send a PR ;)
+First things first, Install the requirements:
+```bash
+pip install -r requirements.txt
+```
 
 #### **NLP**
 Train a Language Model based on RoBERTa (HuggingFace) on WikiText103
@@ -54,6 +57,7 @@ python train.py --config vision/configs/beit-pretraining.yaml
 
 #### **Speech**
 In Progress ...
+
 
 ## Fine-tuning
 A data2vec model consists of an encoder and regression layers on top. To fine-tune any model pretrained using Data2Vec, you can just take the main encoder from the saved checkpoint and fine-tune it as you would fine-tune a regular model.
