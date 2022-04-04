@@ -10,7 +10,7 @@ class MIMPretrainingDataset(ImageFolder):
 
     Given an image, the common transforms and augmentations are applied like random crop, color jitter, etc., then the
     image is split into 14x14 patches and some patches are masked randomly. The input image to the model is the masked
-    image and the target image is the unmasked image (Not the full image but just the masked parts put back inside)
+    image and the target image is the full image
 
     Args:
         cfg (DictConfig): config containing model, dataset, etc. properties
@@ -42,7 +42,7 @@ class MIMPretrainingDataset(ImageFolder):
         mask = mask.reshape(1, 14, 14, 1, 1)
         image = image.reshape(-1, 14, 14, 16, 16)
         masked_image = (image * mask).reshape(-1, self.input_size, self.input_size)
-        target_image = (image * ~mask).reshape(-1, self.input_size, self.input_size)
+        target_image = image.reshape(-1, self.input_size, self.input_size)
         return masked_image, target_image, mask.flatten().bool()
 
 
