@@ -3,12 +3,12 @@ device: 'cuda'
 model:
   encoder_checkpoint: 'microsoft/beit-base-patch16-224-pt22k'
   embed_dim: 768
-  average_top_k_layers: 10
+  average_top_k_layers: 6
   head_layers: 2
-  num_classes: null
+  num_classes: 1000
   log_dir: 'vision/logs/beit-pretrain'
   normalize_targets: false
-  ema_decay: 0.999
+  ema_decay: 0.9998
   ema_end_decay: 0.9999
   ema_anneal_end_step: 300000
 dataset:
@@ -19,8 +19,8 @@ dataset:
   interpolation: 'bicubic'
   patch_size: 16
   num_patches: 14
-  num_mask_patches: 135
-  max_mask_patches_per_block: null
+  num_mask_patches: 120
+  max_mask_patches_per_block: 196
   min_mask_patches_per_block: 16
   imagenet_default_mean_and_std: false
 train:
@@ -30,9 +30,9 @@ train:
   save_ckpt_freq: 20
   checkpoints_dir: 'vision/checkpoints/beit-pretrain'
 criterion:
-  loss_beta: .12
+  loss_beta: 2
 optimizer:
-  lr: 0.0001
+  lr: 2e-3
 
 
 
