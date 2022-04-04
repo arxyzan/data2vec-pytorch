@@ -12,9 +12,10 @@ class WikiText(Dataset):
         cfg (DictConfig): config object
         split: Split to load ['train', 'test']
         tokenizer: A HuggingFace Tokenizer model like BPE
+        **kwargs: extra args which are set as dataset properties
     """
 
-    def __init__(self, cfg, split, tokenizer):
+    def __init__(self, cfg, split, tokenizer, **kwargs):
         super(WikiText, self).__init__()
         self.cfg = cfg
         self.path = cfg.dataset.name
@@ -23,6 +24,7 @@ class WikiText(Dataset):
         raw_data = load_dataset('wikitext', self.path)[split]
         self.data = self.clean_dataset(raw_data) if self.cfg.dataset.clean_dataset else raw_data
         self.tokenizer = tokenizer
+        self.__dict__.update(kwargs)
 
     def clean_dataset(self, data):
         """

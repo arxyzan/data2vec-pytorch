@@ -9,7 +9,7 @@ class Encoder(nn.Module):
 
     Args:
         cfg: An omegaconf.DictConf instance containing all the configurations.
-        **kwargs:
+        **kwargs: extra args which are set as model properties
     """
 
     def __init__(self, cfg, **kwargs):
@@ -19,6 +19,7 @@ class Encoder(nn.Module):
         model_config = AutoConfig.from_pretrained(checkpoint)
         self.encoder = AutoModel.from_config(model_config)
         self.feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(checkpoint)
+        self.__dict__.update(kwargs)
 
     def forward(self, src, **kwargs):
         """
@@ -26,10 +27,10 @@ class Encoder(nn.Module):
 
         Args:
             src: raw audio array
-            **kwargs: Input parameters to transformers.Wav2Vec2Model
+            **kwargs: keyword args specific to the encoder's forward method
 
         Returns:
-            A dictionary of encoder outputs
+            A dictionary of the encoder outputs including transformer layers outputs and attentions outputs
         """
         src = self.feature_extractor(src, return_tensors='pt')
         outputs = self.encoder(**src, output_hidden_states=True, output_attentions=True, **kwargs)

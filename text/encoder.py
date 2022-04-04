@@ -10,7 +10,7 @@ class Encoder(nn.Module):
 
     Args:
         cfg: An omegaconf.DictConf instance containing all the configurations.
-        vocab_size: Total size of the tokens dictionary
+        **kwargs: extra args which are set as model properties
     """
 
     def __init__(self, cfg, **kwargs):
@@ -19,6 +19,7 @@ class Encoder(nn.Module):
         checkpoint = cfg.model.encoder_checkpoint
         model_config = AutoConfig.from_pretrained(checkpoint)
         self.encoder = AutoModel.from_config(model_config)
+        self.__dict__.update(kwargs)
 
     def forward(self, src, **kwargs):
         """
@@ -26,9 +27,10 @@ class Encoder(nn.Module):
 
         Args:
             src: masked source tokens
+            kwargs: keyword args specific to the encoder's forward method
 
         Returns:
-            A dictionary of encoder outputs including encoder outputs and attentions outputs
+            A dictionary of the encoder outputs including transformer layers outputs and attentions outputs
 
         """
         outputs = self.encoder(src, output_hidden_states=True, output_attentions=True, **kwargs)

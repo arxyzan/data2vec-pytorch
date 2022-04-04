@@ -9,7 +9,7 @@ class Encoder(nn.Module):
 
     Args:
         cfg: An omegaconf.DictConf instance containing all the configurations.
-        **kwargs:
+        **kwargs: extra args which are set as dataset properties
     """
 
     def __init__(self, cfg, **kwargs):
@@ -20,6 +20,7 @@ class Encoder(nn.Module):
         self.encoder = AutoModel.from_config(model_config)
         self.vocab_size = model_config.vocab_size
         self.mask_token = self.encoder.embeddings.mask_token
+        self.__dict__.update(kwargs)
 
     def forward(self, src, **kwargs):
         """
@@ -27,10 +28,10 @@ class Encoder(nn.Module):
 
         Args:
             src: input pixels with shape [batch_size, channels, height, width]
-            **kwargs: Input parameters to transformers.BeitModel
+            **kwargs: keyword args specific to the encoder's forward method
 
         Returns:
-            A dictionary of encoder outputs
+            A dictionary of the encoder outputs including transformer layers outputs and attentions outputs
         """
         outputs = self.encoder(pixel_values=src, output_hidden_states=True, output_attentions=True, **kwargs)
         encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately

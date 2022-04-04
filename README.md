@@ -34,7 +34,7 @@ This implementation uses HuggingFace Transformers models as encoders for Data2Ve
 **Note**: This implementation's goal is to provide the necessary building blocks of Data2Vec so anyone can adapt it to their own use case with ease, so in order to make it easy to get hands on, some functionalities like mixed precision, distributed training, etc are not included to keep it as clean & simple as possible. If you only need to train a standard large scale Data2Vec model use the [official repo](https://github.com/pytorch/fairseq/tree/main/examples/data2vec).
 
 ## Train
-First things first, Install the requirements:
+First things first, install the requirements:
 ```bash
 pip install -r requirements.txt
 ```

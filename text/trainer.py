@@ -1,5 +1,5 @@
 """
-Train Data2Vec for text. Use the models under `models` module, e.g, RoBERTa
+Train Data2Vec for text. The encoder is loaded from huggingface specified in the config file.
 """
 import os
 import torch

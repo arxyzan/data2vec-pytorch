@@ -5,6 +5,19 @@ from .transforms import MIMTransform
 
 
 class MIMPretrainingDataset(ImageFolder):
+    """
+    Dataset for Masked Image Modeling derived from BEiT.
+
+    Given an image, the common transforms and augmentations are applied like random crop, color jitter, etc., then the
+    image is split into 14x14 patches and some patches are masked randomly. The input image to the model is the masked
+    image and the target image is the unmasked image (Not the full image but just the masked parts put back inside)
+
+    Args:
+        cfg (DictConfig): config containing model, dataset, etc. properties
+        split: either `train` or `test`
+        **kwargs: extra args which are set as dataset properties
+
+    """
 
     def __init__(self, cfg, split, **kwargs):
         super(MIMPretrainingDataset, self).__init__(root=cfg.dataset.path[split])
@@ -14,6 +27,15 @@ class MIMPretrainingDataset(ImageFolder):
         self.__dict__.update(kwargs)
 
     def __getitem__(self, index):
+        """
+        Load image from disk, transform the image (augmentation and randomly mask some patches)
+
+        Args:
+            index: index to the image
+
+        Returns:
+            a tuple of masked image, unmasked target image and bool masked positions
+        """
         path, target = self.samples[index]
         image = self.loader(path)
         image, mask = self.transform(image)
@@ -26,13 +48,11 @@ class MIMPretrainingDataset(ImageFolder):
 
 if __name__ == '__main__':
     from omegaconf import OmegaConf
-    from transformers import BeitModel, BeitConfig
     from torch.utils.data import DataLoader
 
-    model = BeitModel(BeitConfig())
     cfg = OmegaConf.load('configs/beit-pretraining.yaml')
     cfg.dataset.path = 'dummy_data'
-    dataset = MIMPretrainingDataset(cfg)
+    dataset = MIMPretrainingDataset(cfg, split='train')
     loader = DataLoader(dataset, batch_size=4)
     src, trg = next(iter(loader))
     print(src)
