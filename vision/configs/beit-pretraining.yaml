@@ -30,7 +30,7 @@ train:
   save_ckpt_freq: 20
   checkpoints_dir: 'vision/checkpoints/beit-pretrain'
 criterion:
-  loss_beta: 4
+  loss_beta: .12
 optimizer:
   lr: 0.0001
 

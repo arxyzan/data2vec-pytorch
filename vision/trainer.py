@@ -23,7 +23,7 @@ class VisionTrainer:
         self.model = Data2Vec(encoder=self.encoder, cfg=cfg)
         self.model.to(self.device)
         self.optimizer = optim.Adam(self.model.parameters(), cfg.optimizer.lr)
-        self.criterion = nn.SmoothL1Loss(reduction='none', beta=cfg.criterion.loss_beta)
+        self.criterion = nn.SmoothL1Loss(beta=cfg.criterion.loss_beta)
         self.criterion.to(self.device)
         # Datasets & Data Loaders
         self.train_dataset = MIMPretrainingDataset(cfg, split='train')
