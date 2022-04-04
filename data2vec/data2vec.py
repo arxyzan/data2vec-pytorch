@@ -76,11 +76,7 @@ class Data2Vec(nn.Module):
 
     def forward(self, src, trg=None, mask=None, **kwargs):
         """
-        Forward method has two modes:
-            `training`: Encoder predicts representations using masked inputs (src) and the teacher (Encoder EMA)
-            predicts the representations using unmasked inputs (trg)
-
-            `eval`: The encoder extracts features from the unmasked inputs. (trg is left as `None`)
+        Data2Vec forward method.
 
         Args:
             src: src tokens (masked inputs for training)
