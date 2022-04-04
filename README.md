@@ -64,7 +64,7 @@ A data2vec model consists of an encoder and regression layers on top. To fine-tu
 ```python
 # load a checkpoint for finetuning
 from transformers import RobertaModel, RobertaConfig
-roberta = RobertaModel(RobertaConfig)
+roberta = RobertaModel(RobertaConfig())
 checkpoint = torch.load('path/to/data2vec.pt')
 roberta_state_dict = checkpoint['encoder']
 # load roberta weights from the encoder part of the data2vec model
