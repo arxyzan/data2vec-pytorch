@@ -9,8 +9,8 @@ class Data2Vec(nn.Module):
     Data2Vec main module.
 
     Args:
-         encoder (nn.Module)
-         cfg (omegaconf.DictConfig)
+         encoder (nn.Module): The encoder module like BEiT, ViT, etc.
+         cfg (omegaconf.DictConfig): The config containing model properties
     """
     MODALITIES = ['vision', 'text', 'audio']
 
@@ -32,6 +32,14 @@ class Data2Vec(nn.Module):
         self.ema_anneal_end_step = self.cfg.model.ema_anneal_end_step
 
     def _build_regression_head(self):
+        """
+        Construct the regression head consisting of linear and activation layers.
+
+        Each modality might have its own regression block.
+
+        Returns:
+            A nn.Module layer or block of layers
+        """
         if self.modality == 'text':
             embed_dim = self.embed_dim
             curr_dim = embed_dim
@@ -49,6 +57,9 @@ class Data2Vec(nn.Module):
             return nn.Linear(self.embed_dim, self.embed_dim)
 
     def ema_step(self):
+        """
+        One EMA step for the offline model until the ending decay value is reached
+        """
         if self.ema_decay != self.ema_end_decay:
             if self.ema.num_updates >= self.ema_anneal_end_step:
                 decay = self.ema_end_decay
