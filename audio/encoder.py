@@ -18,7 +18,6 @@ class Encoder(nn.Module):
         checkpoint = cfg.model.encoder_checkpoint
         model_config = AutoConfig.from_pretrained(checkpoint)
         self.encoder = AutoModel.from_config(model_config)
-        self.feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(checkpoint)
         self.__dict__.update(kwargs)
 
     def forward(self, src, **kwargs):
@@ -32,8 +31,7 @@ class Encoder(nn.Module):
         Returns:
             A dictionary of the encoder outputs including transformer layers outputs and attentions outputs
         """
-        src = self.feature_extractor(src, return_tensors='pt')
-        outputs = self.encoder(**src, output_hidden_states=True, output_attentions=True, **kwargs)
+        outputs = self.encoder(src, output_hidden_states=True, output_attentions=True, **kwargs)
         encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately
         encoder_out = outputs['hidden_states'][-1]  # last encoder output (accumulated)
         attentions = outputs['attentions']
