@@ -1,4 +1,6 @@
 modality: 'audio'
 model:
   encoder_checkpoint: 'facebook/wav2vec2-base-960h'
+dataset:
+  path: 'timit_asr'
 
