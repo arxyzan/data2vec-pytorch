@@ -1,10 +1,8 @@
-import dataclasses
-
 import torch
 from torch.utils.data import Dataset
 from datasets import load_dataset
+from transformers.models.wav2vec2.modeling_wav2vec2 import _compute_mask_indices
 from transformers import Wav2Vec2FeatureExtractor
-from transformers.models.wav2vec2.modeling_wav2vec2 import _compute_mask_indices, _sample_negative_indices
 
 
 class TIMIT(Dataset):
@@ -82,15 +80,16 @@ class DataCollatorForWav2Vec2Pretraining:  # copied from transformers/examples/p
             self.model.config.mask_time_length,
             attention_mask=batch.get("sub_attention_mask"),
         )
-        batch["mask_time_indices"] = torch.tensor(mask_time_indices, dtype=torch.long, device=device)
+        mask_time_indices = torch.tensor(mask_time_indices, dtype=torch.long, device=device)
+        src = batch['input_values']
 
-        return batch
+        return src, mask_time_indices
 
 
 if __name__ == '__main__':
     from torch.utils.data import DataLoader
     from omegaconf import OmegaConf
-    from transformers import Wav2Vec2FeatureExtractor, Wav2Vec2Model, Wav2Vec2Config
+    from transformers import Wav2Vec2Model, Wav2Vec2Config
 
     cfg = OmegaConf.load('configs/wav2vec2-pretraining.yaml')
     model = Wav2Vec2Model(Wav2Vec2Config())

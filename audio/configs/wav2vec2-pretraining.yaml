@@ -1,6 +1,26 @@
 modality: 'audio'
+device: 'cpu'
 model:
   encoder_checkpoint: 'facebook/wav2vec2-base-960h'
+  embed_dim: 768
+  average_top_k_layers: 8
+  head_layers: 2
+  num_classes: 1000
+  normalize_targets: false
+  ema_decay: 0.9998
+  ema_end_decay: 0.9999
+  ema_anneal_end_step: 300000
 dataset:
   path: 'timit_asr'
+optimizer:
+  lr: 0.0005
+train:
+  batch_size: 1
+  num_epochs: 1000
+  log_dir: 'audio/logs'
+  save_ckpt_freq: 10
+  checkpoints_dir: 'audio/checkpoints/wav2vec2-pretraining'
+
+
+
 
