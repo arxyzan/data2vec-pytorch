@@ -60,9 +60,8 @@ class TextTrainer:
         Returns:
             Loss value
         """
-        src = batch['input_ids'].to(self.device)
-        trg = batch['labels'].to(self.device)
-        mask = batch['masked_indices'].to(self.device)
+        src, trg, mask = batch
+        src, trg, mask = src.to(self.device), trg.to(self.device), mask.to(self.device)
 
         x, y = self.model(src, trg, mask)
         loss = self.criterion(x.float(), y.float()).sum(dim=-1).sum().div(x.size(0))

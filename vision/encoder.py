@@ -22,18 +22,20 @@ class Encoder(nn.Module):
         self.mask_token = self.encoder.embeddings.mask_token
         self.__dict__.update(kwargs)
 
-    def forward(self, src, **kwargs):
+    def forward(self, inputs, mask=None, **kwargs):
         """
         Forward inputs through the encoder and extract transformer/attention layers outputs
 
         Args:
-            src: input pixels with shape [batch_size, channels, height, width]
+            inputs: input pixels with shape [batch_size, channels, height, width]
+            mask: bool masked indices
             **kwargs: keyword args specific to the encoder's forward method
 
         Returns:
             A dictionary of the encoder outputs including transformer layers outputs and attentions outputs
         """
-        outputs = self.encoder(pixel_values=src, output_hidden_states=True, output_attentions=True, **kwargs)
+        # Note: inputs are already masked for MLM so mask is not used
+        outputs = self.encoder(pixel_values=inputs, output_hidden_states=True, output_attentions=True, **kwargs)
         encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately
         encoder_out = outputs['hidden_states'][-1]  # last encoder output (accumulated)
         attentions = outputs['attentions']

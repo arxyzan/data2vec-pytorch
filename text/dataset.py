@@ -108,10 +108,10 @@ class WikiText(Dataset):
         batch = self.tokenizer.pad(batch, return_tensors="pt")
         # If special token mask has been preprocessed, pop it from the dict.
         special_tokens_mask = batch.pop("special_tokens_mask", None)
-        batch["input_ids"], batch["labels"], batch['masked_indices'] = self._mask_tokens(
+        src, trg, masked_indices = self._mask_tokens(
             batch["input_ids"], special_tokens_mask=special_tokens_mask
         )
-        return batch
+        return src, trg, masked_indices
 
 
 if __name__ == '__main__':

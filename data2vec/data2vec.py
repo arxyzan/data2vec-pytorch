@@ -81,20 +81,21 @@ class Data2Vec(nn.Module):
         Args:
             src: src tokens (masked inputs for training)
             trg: trg tokens (unmasked inputs for training but left as `None` otherwise)
-            mask: bool masked indices
+            mask: bool masked indices, Note: if a modality requires the inputs to be masked before forward this param
+            has no effect. (see the Encoder for each modality to see if it uses mask or not)
 
         Returns:
             Either encoder outputs or a tuple of encoder + EMA outputs
 
         """
-        x = self.encoder(src)['encoder_out']
+        x = self.encoder(src, mask)['encoder_out']
         if trg is None:
             return x
 
         with torch.no_grad():
             self.ema.model.eval()
 
-            y = self.ema.model(trg)['encoder_states']
+            y = self.ema.model(trg, ~mask)['encoder_states']
             y = y[-self.cfg.model.average_top_k_layers:]
 
             if self.modality in ['vision', 'text']:  # Follow the same layer normalization procedure for text and vision

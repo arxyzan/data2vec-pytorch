@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoModel, AutoConfig, Wav2Vec2FeatureExtractor
+from transformers import AutoModel, AutoConfig
 import torch.nn as nn
 
 
@@ -20,18 +20,20 @@ class Encoder(nn.Module):
         self.encoder = AutoModel.from_config(model_config)
         self.__dict__.update(kwargs)
 
-    def forward(self, src, **kwargs):
+    def forward(self, inputs, mask=None, **kwargs):
         """
         Forward inputs through the encoder and extract transformer/attention layers outputs
 
         Args:
-            src: raw audio array
+            inputs: raw audio array
+            mask: bool masked indices
             **kwargs: keyword args specific to the encoder's forward method
 
         Returns:
             A dictionary of the encoder outputs including transformer layers outputs and attentions outputs
         """
-        outputs = self.encoder(src, output_hidden_states=True, output_attentions=True, **kwargs)
+        outputs = self.encoder(inputs, mask_time_indices=mask, output_hidden_states=True,
+                               output_attentions=True, **kwargs)
         encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately
         encoder_out = outputs['hidden_states'][-1]  # last encoder output (accumulated)
         attentions = outputs['attentions']
@@ -43,17 +45,18 @@ class Encoder(nn.Module):
 
 
 if __name__ == '__main__':
-    from datasets import load_dataset
+    from dataset import TIMIT, DataCollatorForWav2Vec2Pretraining
     from omegaconf import OmegaConf
+    from transformers import Wav2Vec2FeatureExtractor
+    from torch.utils.data import DataLoader
 
     cfg = OmegaConf.load('configs/wav2vec2-pretraining.yaml')
-    dataset = load_dataset("hf-internal-testing/librispeech_asr_demo", "clean", split="validation")
-    dataset = dataset.sort("id")
-    sample = dataset[0]['audio']['array']
-
+    feature_extractor = Wav2Vec2FeatureExtractor()
     model = Encoder(cfg)
-
-    features = model(sample)
+    dataset = TIMIT(cfg, 'train')
+    collate_fn = DataCollatorForWav2Vec2Pretraining(model.encoder, feature_extractor, padding='longest')
+    loader = DataLoader(dataset, batch_size=4, collate_fn=collate_fn)
+    itr = iter(loader)
+    inputs, mask = next(itr)
+    features = model(inputs, mask)
     print(features)
-
-
