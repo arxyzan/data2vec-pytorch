@@ -150,5 +150,5 @@ class TextTrainer:
 
             should_save_ckpt = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
             if should_save_ckpt(epoch):
-                save_path = os.path.join(self.cfg.train.weights_dir, f'{epoch}.pt')
+                save_path = os.path.join(self.cfg.train.checkpoints_dir, f'{epoch}.pt')
                 save_checkpoint(self.model, self.optimizer, save_path)
