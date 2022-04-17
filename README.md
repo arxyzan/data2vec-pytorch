@@ -56,7 +56,12 @@ python train.py --config vision/configs/beit-pretraining.yaml
 ```
 
 #### **Speech**
-In Progress ...
+Audio pretraining based on Wav2Vec2 (HuggingFace) on `timit` dataset. If you want to use other datasets like `librispeech` provide it in `audio/dataset.py` (some minor changes to the timit class would do the job because both are loaded from HuggingFace datasets)
+
+Configure other properties as you desire and run the following:
+```bash
+python train.py --config audio/configs/wav2vec2-pretraining.yaml 
+```
 
 
 ## Fine-tuning
