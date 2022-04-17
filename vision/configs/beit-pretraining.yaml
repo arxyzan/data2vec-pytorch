@@ -6,7 +6,6 @@ model:
   average_top_k_layers: 6
   head_layers: 2
   num_classes: 1000
-  log_dir: 'vision/logs/beit-pretrain'
   normalize_targets: false
   ema_decay: 0.9998
   ema_end_decay: 0.9999
@@ -29,6 +28,7 @@ train:
   shuffle: true
   save_ckpt_freq: 20
   checkpoints_dir: 'vision/checkpoints/beit-pretrain'
+  log_dir: 'vision/logs/beit-pretrain'
 criterion:
   loss_beta: 2
 optimizer:

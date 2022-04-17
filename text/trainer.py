@@ -45,7 +45,7 @@ class TextTrainer:
         self.test_loader = DataLoader(self.test_dataset, batch_size=cfg.train.val_batch_size,
                                       collate_fn=self.test_dataset.collate_fn)
         # Tensorboard
-        self.tensorboard = SummaryWriter(log_dir=self.cfg.model.log_dir)
+        self.tensorboard = SummaryWriter(log_dir=self.cfg.train.log_dir)
 
         # Trackers
         self.loss_tracker = AverageMeter('loss')

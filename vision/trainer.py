@@ -32,7 +32,7 @@ class VisionTrainer:
         self.test_loader = DataLoader(self.test_dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
 
         # Tensorboard
-        self.tensorboard = SummaryWriter(log_dir=self.cfg.model.log_dir)
+        self.tensorboard = SummaryWriter(log_dir=self.cfg.train.log_dir)
 
         # Trackers
         self.loss_tracker = AverageMeter('loss')
