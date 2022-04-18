@@ -1,4 +1,8 @@
 torch
+torchvision
 transformers
+datasets
 tqdm
 omegaconf
+tensorboard
+timm
