@@ -1,5 +1,5 @@
 modality: 'audio'
-device: 'cpu'
+device: 'cuda'
 model:
   encoder_checkpoint: 'facebook/wav2vec2-base-960h'
   embed_dim: 768

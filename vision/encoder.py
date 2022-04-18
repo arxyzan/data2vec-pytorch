@@ -34,7 +34,7 @@ class Encoder(nn.Module):
         Returns:
             A dictionary of the encoder outputs including transformer layers outputs and attentions outputs
         """
-        # Note: inputs are already masked for MLM so mask is not used
+        # Note: inputs are already masked for MIM so mask is not used
         outputs = self.encoder(pixel_values=inputs, output_hidden_states=True, output_attentions=True, **kwargs)
         encoder_states = outputs['hidden_states'][:-1]  # encoder layers outputs separately
         encoder_out = outputs['hidden_states'][-1]  # last encoder output (accumulated)
