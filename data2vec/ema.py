@@ -20,7 +20,7 @@ class EMA:
         self.cfg = cfg
         self.device = device
         self.skip_keys = skip_keys or set()
-        self.decay = self.cfg.ema_decay
+        self.decay = self.cfg.model.ema_decay
         self.num_updates = 0
 
     def step(self, new_model: nn.Module):
