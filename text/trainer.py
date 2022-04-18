@@ -14,7 +14,7 @@ from tqdm import tqdm
 from text.encoder import Encoder, AutoTokenizer
 from text.dataset import WikiText
 from data2vec import Data2Vec
-from utils import AverageMeter, save_checkpoint
+from utils import AverageMeter, maybe_save_checkpoint
 
 
 class TextTrainer:
@@ -29,6 +29,8 @@ class TextTrainer:
         self.cfg = cfg
         self.num_epochs = self.cfg.train.num_epochs
         self.device = self.cfg.device
+        self.ckpt_dir = cfg.train.checkpoints_dir
+        self.save_ckpt_freq = cfg.train.save_ckpt_freq
         # Model, Optim, Criterion
         self.tokenizer = AutoTokenizer.from_pretrained(cfg.model.encoder_checkpoint)
         self.encoder = Encoder(cfg=cfg)
@@ -147,7 +149,5 @@ class TextTrainer:
             self.tensorboard.add_scalar('train_loss', train_loss, epoch)
             self.tensorboard.add_scalar('val_loss', val_loss, epoch)
 
-            should_save_ckpt = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
-            if should_save_ckpt(epoch):
-                save_path = os.path.join(self.cfg.train.checkpoints_dir, f'{epoch}.pt')
-                save_checkpoint(self.model, self.optimizer, save_path)
+            # save checkpoint
+            maybe_save_checkpoint(self.model, self.optimizer, self.ckpt_dir, epoch, self.save_ckpt_freq)

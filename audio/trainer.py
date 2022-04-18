@@ -11,7 +11,7 @@ from tqdm import tqdm
 from audio.encoder import Encoder
 from audio.dataset import TIMIT, DataCollatorForWav2Vec2Pretraining
 from data2vec import Data2Vec
-from utils import AverageMeter, save_checkpoint
+from utils import AverageMeter, maybe_save_checkpoint
 
 
 class AudioTrainer:
@@ -19,6 +19,8 @@ class AudioTrainer:
         self.cfg = cfg
         self.num_epochs = self.cfg.train.num_epochs
         self.device = self.cfg.device
+        self.ckpt_dir = cfg.train.checkpoints_dir
+        self.save_ckpt_freq = cfg.train.save_ckpt_freq
         # Model, Optim, Criterion
         self.encoder = Encoder(cfg=cfg)
         self.model = Data2Vec(encoder=self.encoder, cfg=cfg)
@@ -138,7 +140,4 @@ class AudioTrainer:
             self.tensorboard.add_scalar('train_loss', train_loss, epoch)
             self.tensorboard.add_scalar('val_loss', val_loss, epoch)
 
-            should_save_ckpt = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
-            if should_save_ckpt(epoch):
-                save_path = os.path.join(self.cfg.train.weights_dir, f'{epoch}.pt')
-                save_checkpoint(self.model, self.optimizer, save_path)
+            maybe_save_checkpoint(self.model, self.optimizer, self.ckpt_dir, epoch, self.save_ckpt_freq)

@@ -1,3 +1,4 @@
+import os
 import torch
 
 
@@ -26,19 +27,23 @@ class AverageMeter(object):
         return fmtstr.format(**self.__dict__)
 
 
-def save_checkpoint(model, optimizer, path):
+def maybe_save_checkpoint(model, optimizer, path, epoch_num, save_freq):
     """
     Save a checkpoint specific to Data2Vec
     Args:
         model: a nn.Module instance
         optimizer
         path: path to save checkpoint to
-
-    Returns:
+        epoch_num: current epoch number
+        save_freq: save frequency based on epoch number
 
     """
-    checkpoint = {'data2vec': model.state_dict(),
-                  'encoder': model.encoder.state_dict(),
-                  'optimizer': optimizer.state_dict()}
-    torch.save(checkpoint, path)
-    print(f'Saved Model at {path}')
+    if not os.path.exists(path):
+        os.makedirs(path)
+    path = os.path.join(path, f'{epoch_num}.pt')
+    if epoch_num % save_freq == 0:
+        checkpoint = {'data2vec': model.state_dict(),
+                      'encoder': model.encoder.state_dict(),
+                      'optimizer': optimizer.state_dict()}
+        torch.save(checkpoint, path)
+        print(f'Saved checkpoint to `{path}`')

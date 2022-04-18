@@ -10,7 +10,7 @@ from tqdm import tqdm
 from vision.encoder import Encoder
 from vision.dataset import MIMPretrainingDataset
 from data2vec import Data2Vec
-from utils import AverageMeter, save_checkpoint
+from utils import AverageMeter, maybe_save_checkpoint
 
 
 class VisionTrainer:
@@ -18,6 +18,8 @@ class VisionTrainer:
         self.cfg = cfg
         self.device = cfg.device
         self.num_epochs = cfg.train.num_epochs
+        self.ckpt_dir = cfg.train.checkpoints_dir
+        self.save_ckpt_freq = cfg.train.save_ckpt_freq
         # Model, Criterion, Optimizer
         self.encoder = Encoder(cfg=cfg)
         self.model = Data2Vec(encoder=self.encoder, cfg=cfg)
@@ -133,7 +135,5 @@ class VisionTrainer:
             self.tensorboard.add_scalar('train_loss', train_loss, epoch)
             self.tensorboard.add_scalar('val_loss', val_loss, epoch)
 
-            should_save_ckpt = lambda x: not bool(x % self.cfg.train.save_ckpt_freq)
-            if should_save_ckpt(epoch):
-                save_path = os.path.join(self.cfg.train.checkpoints_dir, f'{epoch}.pt')
-                save_checkpoint(self.model, self.optimizer, save_path)
+            # save checkpoint
+            maybe_save_checkpoint(self.model, self.optimizer, self.ckpt_dir, epoch, self.save_ckpt_freq)
