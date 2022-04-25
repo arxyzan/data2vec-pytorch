@@ -18,7 +18,6 @@ class Data2Vec(nn.Module):
         super(Data2Vec, self).__init__()
         self.modality = cfg.modality
         self.embed_dim = cfg.model.embed_dim
-        assert cfg.modality in self.MODALITIES
         self.encoder = encoder
         self.__dict__.update(kwargs)
 
@@ -80,23 +79,26 @@ class Data2Vec(nn.Module):
             Either encoder outputs or a tuple of encoder + EMA outputs
 
         """
-        x = self.encoder(src, mask)['encoder_out']
+        # model forward in online mode (student)
+        x = self.encoder(src, mask, **kwargs)['encoder_out']  # fetch the last layer outputs
         if trg is None:
             return x
 
+        # model forward in offline mode (teacher)
         with torch.no_grad():
             self.ema.model.eval()
+            y = self.ema.model(trg, ~mask, **kwargs)['encoder_states']  # fetch the last transformer layers outputs
+            y = y[-self.cfg.model.average_top_k_layers:]  # take the last k transformer layers
 
-            y = self.ema.model(trg, ~mask)['encoder_states']
-            y = y[-self.cfg.model.average_top_k_layers:]
-
-            if self.modality in ['vision', 'text']:  # Follow the same layer normalization procedure for text and vision
+            # Follow the same layer normalization procedure for text and vision
+            if self.modality in ['vision', 'text']:
                 y = [F.layer_norm(tl.float(), tl.shape[-1:]) for tl in y]
                 y = sum(y) / len(y)
                 if self.cfg.model.normalize_targets:
                     y = F.layer_norm(y.float(), y.shape[-1:])
 
-            elif self.modality == 'audio':  # Use instance normalization for audio
+            # Use instance normalization for audio
+            elif self.modality == 'audio':
                 y = [F.instance_norm(tl.float()) for tl in y]
                 y = sum(y) / len(y)
                 if self.cfg.model.normalize_targets:
