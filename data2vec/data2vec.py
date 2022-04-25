@@ -41,17 +41,9 @@ class Data2Vec(nn.Module):
             A nn.Module layer or block of layers
         """
         if self.modality == 'text':
-            embed_dim = self.embed_dim
-            curr_dim = embed_dim
-            projs = []
-            for i in range(self.cfg.model.head_layers - 1):
-                next_dim = embed_dim * 2 if i == 0 else curr_dim
-                projs.append(nn.Linear(curr_dim, next_dim))
-                projs.append(nn.GELU())
-                curr_dim = next_dim
-
-            projs.append(nn.Linear(curr_dim, embed_dim))
-            return nn.Sequential(*projs)
+            return nn.Sequential(nn.Linear(self.embed_dim, self.embed_dim * 2),
+                                 nn.GELU(),
+                                 nn.Linear(self.embed_dim * 2, self.embed_dim))
 
         if self.modality in ['audio', 'vision']:
             return nn.Linear(self.embed_dim, self.embed_dim)
