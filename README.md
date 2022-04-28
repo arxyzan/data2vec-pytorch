@@ -63,6 +63,8 @@ Configure other properties as you desire and run the following:
 python train.py --config audio/configs/wav2vec2-pretraining.yaml 
 ```
 
+## Pre-trained Weights
+Coming soon!
 
 ## Fine-tuning
 A data2vec model consists of an encoder and regression layers on top. To fine-tune any model pretrained using Data2Vec, you can just take the main encoder from the saved checkpoint and fine-tune it as you would fine-tune a regular model.
