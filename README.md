@@ -79,7 +79,7 @@ data2vec_beit = AutoModel.from_pretrained(checkpoint)
 # load using BeitModel
 from transformers import BeitModel
 
-BeitModel.from_pretrained(checkpoint)
+model = BeitModel.from_pretrained(checkpoint)
 
 ```
 
@@ -96,7 +96,7 @@ data2vec_roberta = AutoModel.from_pretrained(checkpoint)
 # load using BeitModel
 from transformers import RobertaModel
 
-RobertaModel.from_pretrained(checkpoint)
+model = RobertaModel.from_pretrained(checkpoint)
 
 ```
 
