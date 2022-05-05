@@ -67,7 +67,7 @@ python train.py --config audio/configs/wav2vec2-pretraining.yaml
 The models are available on HuggingFace Hub and you can use them like below:
 
 #### **RoBERTa**
-Data2Vec model trained with RoBERTa as the encoder:
+Data2Vec model trained with RoBERTa as the encoder ([data2vec-roberta-base](https://huggingface.co/arxyzan/data2vec-roberta-base))
 ```python
 from transformers import AutoModel, AutoConfig
 
@@ -84,7 +84,7 @@ model = RobertaModel.from_pretrained(checkpoint)
 ```
 
 #### **BEiT**
-Data2Vec model trained with BEiT as the encoder:
+Data2Vec model trained with BEiT as the encoder ([data2vec-beit-base](https://huggingface.co/arxyzan/data2vec-beit-base))
 ```python
 from transformers import AutoModel, AutoConfig
 
@@ -101,7 +101,7 @@ model = BeitModel.from_pretrained(checkpoint)
 ```
 
 #### **Wav2Vec2**
-Data2Vec model trained with Wav2Vec2 as the encoder:
+Data2Vec model trained with Wav2Vec2 as the encoder ([data2vec-wav2vec2-base](https://huggingface.co/arxyzan/data2vec-wav2vec2-base))
 ```python
 from transformers import AutoModel, AutoConfig
 
