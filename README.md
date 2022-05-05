@@ -66,7 +66,7 @@ python train.py --config audio/configs/wav2vec2-pretraining.yaml
 ## Pre-trained Weights
 The models are available on HuggingFace Hub and you can use them like below:
 
-### **BEiT**
+#### **BEiT**
 Data2Vec model trained with BEiT as the encoder:
 ```python
 from transformers import AutoModel, AutoConfig
@@ -83,7 +83,7 @@ model = BeitModel.from_pretrained(checkpoint)
 
 ```
 
-### **RoBERTa**
+#### **RoBERTa**
 Data2Vec model trained with RoBERTa as the encoder:
 ```python
 from transformers import AutoModel, AutoConfig
@@ -100,7 +100,7 @@ model = RobertaModel.from_pretrained(checkpoint)
 
 ```
 
-### **Wav2Vec2**
+#### **Wav2Vec2**
 Coming Soon!
 
 **Note:** The above models' weights were carefully ported from the original checkpoints in the `fairseq` version.
