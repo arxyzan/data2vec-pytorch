@@ -108,7 +108,7 @@ from transformers import AutoModel, AutoConfig
 checkpoint = 'arxyzan/data2vec-wav2vec2-base'
 
 # load using AutoModel
-data2vec_roberta = AutoModel.from_pretrained(checkpoint)
+data2vec_wav2vec2 = AutoModel.from_pretrained(checkpoint)
 
 # load using BeitModel
 from transformers import Wav2Vec2Model
