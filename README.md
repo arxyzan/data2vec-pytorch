@@ -64,10 +64,48 @@ python train.py --config audio/configs/wav2vec2-pretraining.yaml
 ```
 
 ## Pre-trained Weights
-Coming soon!
+The models are available on HuggingFace Hub and you can use them like below:
 
+### **BEiT**
+Data2Vec model trained with BEiT as the encoder:
+```python
+from transformers import AutoModel, AutoConfig
+
+checkpoint = 'arxyzan/data2vec-beit-base'
+
+# load using AutoModel
+data2vec_beit = AutoModel.from_pretrained(checkpoint)
+
+# load using BeitModel
+from transformers import BeitModel
+
+BeitModel.from_pretrained(checkpoint)
+
+```
+
+### **RoBERTa**
+Data2Vec model trained with RoBERTa as the encoder:
+```python
+from transformers import AutoModel, AutoConfig
+
+checkpoint = 'arxyzan/data2vec-roberta-base'
+
+# load using AutoModel
+data2vec_roberta = AutoModel.from_pretrained(checkpoint)
+
+# load using BeitModel
+from transformers import RobertaModel
+
+RobertaModel.from_pretrained(checkpoint)
+
+```
+
+### **Wav2Vec2**
+Coming Soon!
+
+**Note:** The above models' weights were carefully ported from the original checkpoints in the `fairseq` version.
 ## Fine-tuning
-A data2vec model consists of an encoder and regression layers on top. To fine-tune any model pretrained using Data2Vec, you can just take the main encoder from the saved checkpoint and fine-tune it as you would fine-tune a regular model.
+1. In case you trained a model using this codebase, you can fine-tune it by taking out the encoder's state dict from the checkpoint which gives you a HuggingFace model and you can fine-tune it for any downstream task as you'd normally do for HuggingFace models.
 ```python
 # load a checkpoint for finetuning
 from transformers import RobertaModel, RobertaConfig
@@ -77,7 +115,20 @@ roberta_state_dict = checkpoint['encoder']
 # load roberta weights from the encoder part of the data2vec model
 encoder = roberta.load_state_dict(roberta_state_dict)
 
-# Now fine-tune a regular HuggingFace RoBERTa model as usual
+# Now fine-tune a regular HuggingFace RoBERTa model
+...
+```
+2. Fine-tune using the checkpoints mentioned above:
+```python
+# Text classification using Roberta model from HuggingFace
+from transformers import RobertaModel, RobertaForSequenceClassification
+
+checkpoint = 'arxyzan/data2vec-roberta-base'
+# this is exactly a roberta model but trained with data2vec
+data2vec_roberta = RobertaModel.from_pretrained(checkpoint)
+text_classifier = RobertaForSequenceClassification(data2vec_roberta.config)
+# assign `data2vec-roberta` weights to the roberta block of the classifier
+text_classifier.roberta = data2vec_roberta
 ...
 ```
 
