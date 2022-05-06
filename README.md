@@ -76,7 +76,7 @@ checkpoint = 'arxyzan/data2vec-roberta-base'
 # load using AutoModel
 data2vec_roberta = AutoModel.from_pretrained(checkpoint)
 
-# load using BeitModel
+# load using RobertaModel
 from transformers import RobertaModel
 
 model = RobertaModel.from_pretrained(checkpoint)
@@ -110,7 +110,7 @@ checkpoint = 'arxyzan/data2vec-wav2vec2-base'
 # load using AutoModel
 data2vec_wav2vec2 = AutoModel.from_pretrained(checkpoint)
 
-# load using BeitModel
+# load using Wav2Vec2Model
 from transformers import Wav2Vec2Model
 
 model = Wav2Vec2Model.from_pretrained(checkpoint)
