@@ -70,16 +70,15 @@ The models are available on HuggingFace Hub and you can use them like below:
 Data2Vec model trained with RoBERTa as the encoder ([data2vec-roberta-base](https://huggingface.co/arxyzan/data2vec-roberta-base))
 ```python
 from transformers import AutoModel, AutoConfig
+from transformers import RobertaModel
 
 checkpoint = 'arxyzan/data2vec-roberta-base'
 
-# load using AutoModel
+# Option 1: load using AutoModel
 data2vec_roberta = AutoModel.from_pretrained(checkpoint)
 
-# load using RobertaModel
-from transformers import RobertaModel
-
-model = RobertaModel.from_pretrained(checkpoint)
+# Option 2: load directly by RobertaModel
+data2vec_roberta = RobertaModel.from_pretrained(checkpoint)
 
 ```
 
@@ -87,16 +86,15 @@ model = RobertaModel.from_pretrained(checkpoint)
 Data2Vec model trained with BEiT as the encoder ([data2vec-beit-base](https://huggingface.co/arxyzan/data2vec-beit-base))
 ```python
 from transformers import AutoModel, AutoConfig
+from transformers import BeitModel
 
 checkpoint = 'arxyzan/data2vec-beit-base'
 
-# load using AutoModel
+# Option 1: load using AutoModel
 data2vec_beit = AutoModel.from_pretrained(checkpoint)
 
-# load using BeitModel
-from transformers import BeitModel
-
-model = BeitModel.from_pretrained(checkpoint)
+# Option 2: load directly by BeitModel
+data2vec_beit = BeitModel.from_pretrained(checkpoint)
 
 ```
 
@@ -104,16 +102,15 @@ model = BeitModel.from_pretrained(checkpoint)
 Data2Vec model trained with Wav2Vec2 as the encoder ([data2vec-wav2vec2-base](https://huggingface.co/arxyzan/data2vec-wav2vec2-base))
 ```python
 from transformers import AutoModel, AutoConfig
+from transformers import Wav2Vec2Model
 
 checkpoint = 'arxyzan/data2vec-wav2vec2-base'
 
-# load using AutoModel
+# Option 1: load using AutoModel
 data2vec_wav2vec2 = AutoModel.from_pretrained(checkpoint)
 
-# load using Wav2Vec2Model
-from transformers import Wav2Vec2Model
-
-model = Wav2Vec2Model.from_pretrained(checkpoint)
+# Option 2: load directly by Wav2Vec2Model
+data2vec_wav2vec2 = Wav2Vec2Model.from_pretrained(checkpoint)
 
 ```
 
