@@ -117,20 +117,8 @@ data2vec_wav2vec2 = Wav2Vec2Model.from_pretrained(checkpoint)
 
 **Note:** The above models' weights were carefully ported from the original checkpoints in the `fairseq` version.
 ## Fine-tuning
-1. In case you trained a model using this codebase, you can fine-tune it by taking out the encoder's state dict from the checkpoint which gives you a HuggingFace model and you can fine-tune it for any downstream task as you'd normally do for HuggingFace models.
-```python
-# load a checkpoint for finetuning
-from transformers import RobertaModel, RobertaConfig
-roberta = RobertaModel(RobertaConfig())
-checkpoint = torch.load('path/to/data2vec.pt')
-roberta_state_dict = checkpoint['encoder']
-# load roberta weights from the encoder part of the data2vec model
-encoder = roberta.load_state_dict(roberta_state_dict)
 
-# Now fine-tune a regular HuggingFace RoBERTa model
-...
-```
-2. Fine-tune using the checkpoints mentioned above:
+1. Fine-tune using the checkpoints mentioned above:
 ```python
 # Text classification using Roberta model from HuggingFace
 from transformers import RobertaModel, RobertaForSequenceClassification
@@ -143,7 +131,19 @@ text_classifier = RobertaForSequenceClassification(data2vec_roberta.config)
 text_classifier.roberta = data2vec_roberta
 ...
 ```
+2. In case you trained a model using this codebase, you can fine-tune it by taking out the encoder's state dict from the checkpoint which gives you a HuggingFace model and you can fine-tune it for any downstream task as you'd normally do for HuggingFace models.
+```python
+# load a checkpoint for finetuning
+from transformers import RobertaModel, RobertaConfig
+roberta = RobertaModel(RobertaConfig())
+checkpoint = torch.load('path/to/data2vec.pt')
+roberta_state_dict = checkpoint['encoder']
+# load roberta weights from the encoder part of the data2vec model
+encoder = roberta.load_state_dict(roberta_state_dict)
 
+# Now fine-tune a regular HuggingFace RoBERTa model
+...
+```
 
 ## Contributions
 Any contribution regarding training, development and issues are welcome!
