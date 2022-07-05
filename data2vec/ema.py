@@ -14,7 +14,7 @@ class EMA:
     """
 
     def __init__(self, model: nn.Module, cfg, device=None, skip_keys=None):
-        self.model = model
+        self.model = copy.deepcopy(model)
         self.model.requires_grad_(False)
         self.model.to(device)
         self.cfg = cfg
