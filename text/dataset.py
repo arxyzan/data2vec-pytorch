@@ -20,7 +20,6 @@ class WikiText(Dataset):
         self.cfg = cfg
         self.path = cfg.dataset.name
         self.mlm_probability = cfg.dataset.mlm_probability
-        self.min_seq_len = cfg.dataset.min_seq_len
         raw_data = load_dataset('wikitext', self.path)[split]
         self.data = self.clean_dataset(raw_data) if self.cfg.dataset.clean_dataset else raw_data
         self.tokenizer = tokenizer

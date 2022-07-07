@@ -5,6 +5,7 @@ train:
   num_epochs: 20
   checkpoints_dir: 'text/checkpoints/roberta-pretrain'
   log_dir: 'text/logs/roberta-pretrain'
+  save_ckpt_freq: 20
 criterion:
   loss_beta: 4
 optimizer:
