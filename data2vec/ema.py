@@ -1,3 +1,4 @@
+import os
 import copy
 
 import torch
@@ -16,7 +17,7 @@ class EMA:
     """
 
     def __init__(self, model: nn.Module, cfg, device=None, skip_keys=None):
-        self.model = copy.deepcopy(model)
+        self.model = self.deepcopy_model(model)
         self.model.requires_grad_(False)
         self.model.to(device)
         self.cfg = cfg
@@ -24,6 +25,18 @@ class EMA:
         self.skip_keys = skip_keys or set()
         self.decay = self.cfg.model.ema_decay
         self.num_updates = 0
+
+    @staticmethod
+    def deepcopy_model(model):
+        try:
+            model = copy.deepcopy(model)
+            return model
+        except RuntimeError:
+            tmp_path = 'tmp_model_for_ema_deepcopy.pt'
+            torch.save(model, tmp_path)
+            model = torch.load(tmp_path)
+            os.remove(tmp_path)
+            return model
 
     def step(self, new_model: nn.Module):
         """
