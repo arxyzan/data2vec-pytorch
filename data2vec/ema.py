@@ -16,12 +16,12 @@ class EMA:
         skip_keys (list): The keys to skip assigning averaged weights to.
     """
 
-    def __init__(self, model: nn.Module, cfg, device=None, skip_keys=None):
+    def __init__(self, model: nn.Module, cfg, skip_keys=None):
         self.model = self.deepcopy_model(model)
         self.model.requires_grad_(False)
-        self.model.to(device)
         self.cfg = cfg
-        self.device = device
+        self.device = cfg.device
+        self.model.to(self.device)
         self.skip_keys = skip_keys or set()
         self.decay = self.cfg.model.ema_decay
         self.num_updates = 0
