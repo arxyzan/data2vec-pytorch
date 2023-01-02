@@ -1,5 +1,6 @@
 # data2vec-pytorch
 ##### PyTorch implementation of "[data2vec: A General Framework for Self-supervised Learning in Speech, Vision and Language](https://arxiv.org/abs/2202.03555)" from Meta AI (FAIR)
+#### Disclaimer: This repo's goal is to make data2vec easier to understand hence it's not recommended to use for actual model pretraining but instead you'd better use the official version in fairseq or the ones provided on HuggingFace.
 Data2Vec is the first high-performance self-supervised algorithm that learns the same way in multiple modalities, including speech, vision and text. 
 Most machines learn exclusively from labeled data. However, through self-supervised learning, machines are able to learn about the world just by observing it 
 and then figuring out the structure of images, speech or text. This is a more scalable and efficient approach for machines to tackle new complex tasks,
@@ -64,7 +65,7 @@ python train.py --config audio/configs/wav2vec2-pretraining.yaml
 ```
 
 ## Pre-trained Weights
-The models are available on HuggingFace Hub and you can use them like below:
+**Note:** The below models' weights were carefully ported from the original checkpoints in the `fairseq` version.
 
 #### **RoBERTa**
 Data2Vec model trained with RoBERTa as the encoder ([data2vec-roberta-base](https://huggingface.co/arxyzan/data2vec-roberta-base))
@@ -114,8 +115,6 @@ data2vec_wav2vec2 = Wav2Vec2Model.from_pretrained(checkpoint)
 
 ```
 
-
-**Note:** The above models' weights were carefully ported from the original checkpoints in the `fairseq` version.
 ## Fine-tuning
 
 1. Fine-tune using the checkpoints mentioned above:
