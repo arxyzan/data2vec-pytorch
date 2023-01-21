@@ -145,4 +145,4 @@ encoder = roberta.load_state_dict(roberta_state_dict)
 ```
 
 ## Contributions
-Any contribution regarding training, development and issues are welcome!
+Any contribution regarding training, development (for Data2Vec2) and issues are welcome!
