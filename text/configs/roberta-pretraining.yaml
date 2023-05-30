@@ -2,6 +2,7 @@ modality: 'text'
 device: 'cuda'
 train:
   batch_size: 32
+  eval_batch_size: 32
   num_epochs: 20
   checkpoints_dir: 'text/checkpoints/roberta-pretrain'
   log_dir: 'text/logs/roberta-pretrain'

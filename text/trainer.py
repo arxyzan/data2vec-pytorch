@@ -44,7 +44,7 @@ class TextTrainer:
         self.test_dataset = WikiText(cfg, 'test', self.tokenizer)
         self.train_loader = DataLoader(self.train_dataset, batch_size=cfg.train.batch_size,
                                        collate_fn=self.train_dataset.collate_fn)
-        self.test_loader = DataLoader(self.test_dataset, batch_size=cfg.train.val_batch_size,
+        self.test_loader = DataLoader(self.test_dataset, batch_size=cfg.train.eval_batch_size,
                                       collate_fn=self.test_dataset.collate_fn)
         # Tensorboard
         self.tensorboard = SummaryWriter(log_dir=self.cfg.train.log_dir)

@@ -15,7 +15,8 @@ dataset:
 optimizer:
   lr: 0.0005
 train:
-  batch_size: 1
+  batch_size: 16
+  eval_batch_size: 16
   num_epochs: 1000
   log_dir: 'audio/logs'
   save_ckpt_freq: 10

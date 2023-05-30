@@ -31,7 +31,7 @@ class VisionTrainer:
         self.train_dataset = MIMPretrainingDataset(cfg, split='train')
         self.test_dataset = MIMPretrainingDataset(cfg, split='test')
         self.train_loader = DataLoader(self.train_dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
-        self.test_loader = DataLoader(self.test_dataset, batch_size=cfg.train.batch_size, shuffle=cfg.train.shuffle)
+        self.test_loader = DataLoader(self.test_dataset, batch_size=cfg.train.eval_batch_size, shuffle=cfg.train.shuffle)
 
         # Tensorboard
         self.tensorboard = SummaryWriter(log_dir=self.cfg.train.log_dir)

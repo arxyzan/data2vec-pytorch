@@ -25,6 +25,7 @@ dataset:
 train:
   num_epochs: 800
   batch_size: 16
+  eval_batch_size: 16
   shuffle: true
   save_ckpt_freq: 20
   checkpoints_dir: 'vision/checkpoints/beit-pretrain'
